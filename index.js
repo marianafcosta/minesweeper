@@ -1,83 +1,108 @@
 const readline = require("readline");
 const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-}) 
+	input: process.stdin,
+	output: process.stdout
+})
 
-const GRID_SIZE = 8;
+const GRID_SIZE = 16;
+const NUM_BOMBS = 32;
 
-let grid = [
-    ['u','u','u','u','u','u','u','u'],
-    ['u','u','u','u','u','u','u','u'],
-    ['u','u','u','u','u','u','u','u'],
-    ['u','u','b','u','u','u','u','u'],
-    ['u','u','u','u','u','u','u','u'],
-    ['u','u','u','u','u','u','u','u'],
-    ['u','u','u','u','u','u','u','u'],
-    ['u','u','u','u','u','u','u','u'],
-];
+const buildGrid = () => {
+	const grid = [];
+	for (let i = 0; i < GRID_SIZE; i++) {
+		grid.push([]);
+		for (let j = 0; j < GRID_SIZE; j++) {
+			grid[i].push({ status: 'u', contains: ' ' });
+		}
+	}
+	return grid;
+}
 
-const printGrid = () => {
-    for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
-            process.stdout.write(`|${grid[i][j]}|`);
-        }
-        process.stdout.write('\n');
-    }
-    process.stdout.write('\n');   
+const fillGridWBombs = (nbombs, grid) => {
+	for (let i = 0; i <= nbombs; i++) {
+		grid[Math.floor(Math.random() * GRID_SIZE)][Math.floor(Math.random() * GRID_SIZE)].contains = 'b';
+	}
+}
+
+const printGrid = (grid) => {
+	for (let i = 0; i < GRID_SIZE; i++) {
+		for (let j = 0; j < GRID_SIZE; j++) {
+			process.stdout.write(`|${grid[i][j].status}|`);
+		}
+		process.stdout.write('\n');
+	}
+	process.stdout.write('\n');
 }
 
 const isCellValid = (row, col) => {
-    return row < GRID_SIZE && col < GRID_SIZE && row >= 0 && col >= 0;
+	return row < GRID_SIZE && col < GRID_SIZE && row >= 0 && col >= 0;
 }
 
-const checkBomb = (row, col) => {
-    let rowInc, colInc;
-    let bombCount = 0;
-    for (rowInc = -1; rowInc < 2; rowInc++) {
-        for (colInc = -1; colInc < 2; colInc++) {
-            if (isCellValid(row+rowInc, col+colInc)) {
-                if (grid[row+rowInc][col+colInc].match('b')) {
-                    bombCount++;
-                }
-            } else { continue };
-        }
-    }
-    return `${bombCount <= 0 ? ' ' : bombCount}`
+const checkBombsAround = (row, col, grid) => {
+	let rowInc, colInc;
+	let bombCount = 0;
+	for (rowInc = -1; rowInc < 2; rowInc++) {
+		for (colInc = -1; colInc < 2; colInc++) {
+			if (isCellValid(row + rowInc, col + colInc)) {
+				if (grid[row + rowInc][col + colInc].contains.match('b')) {
+					bombCount++;
+				}
+			} else { continue };
+		}
+	}
+	return `${bombCount <= 0 ? ' ' : bombCount}`
 }
 
-const uncoverCell = (row, col) => {
-    if (row >= GRID_SIZE || col >= GRID_SIZE || row < 0 || col < 0 || grid[row][col].match(/\s|[0-9]|b/)) {
-        return;
-    }
-    grid[row][col] = checkBomb(row, col);
-    uncoverCell(row-1,col);
-    uncoverCell(row+1,col);
-    uncoverCell(row,col-1);
-    uncoverCell(row,col+1);
+const hasLost = (row, col, grid) => {
+	return grid[row][col].contains.match(/b/);
 }
 
-const parseAnswer = (answer) => {
-    if (answer.match("exit")) {
-        rl.close();
-    } else if (answer.match(/[0-7][0-7]/)) {
-        uncoverCell(parseInt(answer[0]), parseInt(answer[1]));
-    } else {
-        console.log("Invalid command");
-    }
+const uncoverCell = (row, col, grid) => {
+	if (row >= GRID_SIZE || col >= GRID_SIZE || row < 0 || col < 0 || grid[row][col].status.match(/\s|[0-9|b]/) || grid[row][col].contains.match(/b/)) {
+		return;
+	}
+	// TODO: If cell is a bomb, lose game
+	grid[row][col].status = checkBombsAround(row, col, grid);
+	if (grid[row][col].status.match(/[0-9]/)) {
+		return;
+	}
+	uncoverCell(row - 1, col, grid);
+	uncoverCell(row + 1, col, grid);
+	uncoverCell(row, col - 1, grid);
+	uncoverCell(row, col + 1, grid);
 }
 
-const repl = () => {
-    rl.question("Cell to uncover (<row><col>):\n", (answer) => {
-        parseAnswer(answer);
-        printGrid();
-        repl();
-    });
+const parseAnswer = (answer, grid) => {
+	console.log(parseInt(answer));
+	if (answer.match("exit")) {
+		rl.close();
+	} else if (parseInt(answer) !== NaN) {
+		let row = Math.floor(parseInt(answer) / 100);
+		let col = Math.floor(parseInt(answer) % 100);
+		if (hasLost(row, col, grid)) {
+			console.log('Bomb hit!');
+			rl.close();
+		}
+		uncoverCell(row, col, grid);
+	} else {
+		console.log("Invalid command");
+	}
+}
+
+const repl = (grid) => {
+	rl.question("Cell to uncover (<row><col>):\n", (answer) => {
+		parseAnswer(answer, grid);
+		printGrid(grid);
+		repl(grid);
+	});
 }
 
 rl.on("close", () => {
-    console.log("Bye!");
-    process.exit(0);
+	console.log("Bye!");
+	process.exit(0);
 });
 
-repl();
+const grid = buildGrid();
+fillGridWBombs(NUM_BOMBS, grid);
+
+repl(grid);
