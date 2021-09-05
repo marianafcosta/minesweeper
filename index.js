@@ -5,7 +5,8 @@ const rl = readline.createInterface({
 })
 
 const GRID_SIZE = 16;
-const NUM_BOMBS = 32;
+const NUM_BOMBS = 1;
+let uncoveredCells = 0;
 
 const buildGrid = () => {
 	const grid = [];
@@ -19,7 +20,7 @@ const buildGrid = () => {
 }
 
 const fillGridWBombs = (nbombs, grid) => {
-	for (let i = 0; i <= nbombs; i++) {
+	for (let i = 0; i < nbombs; i++) {
 		grid[Math.floor(Math.random() * GRID_SIZE)][Math.floor(Math.random() * GRID_SIZE)].contains = 'b';
 	}
 }
@@ -61,7 +62,7 @@ const uncoverCell = (row, col, grid) => {
 	if (row >= GRID_SIZE || col >= GRID_SIZE || row < 0 || col < 0 || grid[row][col].status.match(/\s|[0-9|b]/) || grid[row][col].contains.match(/b/)) {
 		return;
 	}
-	// TODO: If cell is a bomb, lose game
+	uncoveredCells++;
 	grid[row][col].status = checkBombsAround(row, col, grid);
 	if (grid[row][col].status.match(/[0-9]/)) {
 		return;
@@ -84,6 +85,12 @@ const parseAnswer = (answer, grid) => {
 			rl.close();
 		}
 		uncoverCell(row, col, grid);
+		console.log(uncoveredCells);
+		if (uncoveredCells === GRID_SIZE * GRID_SIZE - NUM_BOMBS) {
+			console.log("You won!");
+			console.log(`Time elapsed: ${(process.hrtime.bigint() - start) / 1000000000n}`)
+			rl.close();
+		}
 	} else {
 		console.log("Invalid command");
 	}
@@ -104,5 +111,6 @@ rl.on("close", () => {
 
 const grid = buildGrid();
 fillGridWBombs(NUM_BOMBS, grid);
+let start = process.hrtime.bigint();
 
 repl(grid);
