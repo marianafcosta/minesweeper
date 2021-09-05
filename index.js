@@ -5,7 +5,7 @@ const rl = readline.createInterface({
 })
 
 const GRID_SIZE = 16;
-const NUM_BOMBS = 1;
+const NUM_BOMBS = 32;
 let uncoveredCells = 0;
 
 const buildGrid = () => {
@@ -59,7 +59,7 @@ const hasLost = (row, col, grid) => {
 }
 
 const uncoverCell = (row, col, grid) => {
-	if (row >= GRID_SIZE || col >= GRID_SIZE || row < 0 || col < 0 || grid[row][col].status.match(/\s|[0-9|b]/) || grid[row][col].contains.match(/b/)) {
+	if (row >= GRID_SIZE || col >= GRID_SIZE || row < 0 || col < 0 || grid[row][col].status.match(/\s|[0-9]|b/) || grid[row][col].contains.match(/b/)) {
 		return;
 	}
 	uncoveredCells++;
@@ -73,10 +73,19 @@ const uncoverCell = (row, col, grid) => {
 	uncoverCell(row, col + 1, grid);
 }
 
+const addFlag = (row, col, grid) => {
+	if (grid[row][col].status.match('u')) {
+		grid[row][col].status = 'F';
+	}
+}
+
 const parseAnswer = (answer, grid) => {
-	console.log(parseInt(answer));
 	if (answer.match("exit")) {
 		rl.close();
+	} else if (answer.match(/^flag/)) {
+		let row = Math.floor(parseInt(answer.split(' ')[1]) / 100);
+		let col = Math.floor(parseInt(answer.split(' ')[1]) % 100);
+		addFlag(row, col, grid);
 	} else if (parseInt(answer) !== NaN) {
 		let row = Math.floor(parseInt(answer) / 100);
 		let col = Math.floor(parseInt(answer) % 100);
