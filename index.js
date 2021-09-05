@@ -91,6 +91,7 @@ const parseAnswer = (answer, grid) => {
 		let col = Math.floor(parseInt(answer) % 100);
 		if (hasLost(row, col, grid)) {
 			console.log('Bomb hit!');
+			printGrid(grid);
 			rl.close();
 		}
 		uncoverCell(row, col, grid);
@@ -98,6 +99,7 @@ const parseAnswer = (answer, grid) => {
 		if (uncoveredCells === GRID_SIZE * GRID_SIZE - NUM_BOMBS) {
 			console.log("You won!");
 			console.log(`Time elapsed: ${(process.hrtime.bigint() - start) / 1000000000n}`)
+			printGrid(grid);
 			rl.close();
 		}
 	} else {
