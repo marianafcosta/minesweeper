@@ -28,7 +28,14 @@ const fillGridWBombs = (nbombs, grid) => {
 }
 
 const printGrid = (grid) => {
+	process.stdout.write(chalk.yellow('| |'));
 	for (let i = 0; i < GRID_SIZE; i++) {
+		process.stdout.write(chalk.yellow(`|${i}|`));
+	}
+
+	process.stdout.write('\n');
+	for (let i = 0; i < GRID_SIZE; i++) {
+		process.stdout.write(chalk.yellow(`|${i}|`));
 		for (let j = 0; j < GRID_SIZE; j++) {
 			if (grid[i][j].status.match(/b/)) {
 				process.stdout.write(`|${chalk.red(grid[i][j].status)}|`);
