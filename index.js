@@ -35,6 +35,15 @@ const printGrid = (grid) => {
 	process.stdout.write('\n');
 }
 
+const showBombs = (grid) => {
+	for (let i = 0; i < GRID_SIZE; i++) {
+		for (let j = 0; j < GRID_SIZE; j++) {
+			if (grid[i][j].contains.match(/b/)) {
+				grid[i][j].status = 'b';
+			}
+		}
+	}
+}
 const isCellValid = (row, col) => {
 	return row < GRID_SIZE && col < GRID_SIZE && row >= 0 && col >= 0;
 }
@@ -42,6 +51,9 @@ const isCellValid = (row, col) => {
 const checkBombsAround = (row, col, grid) => {
 	let rowInc, colInc;
 	let bombCount = 0;
+	if (grid[row][col].contains.match(/b/)) {
+		return 'b'
+	}
 	for (rowInc = -1; rowInc < 2; rowInc++) {
 		for (colInc = -1; colInc < 2; colInc++) {
 			if (isCellValid(row + rowInc, col + colInc)) {
@@ -59,12 +71,13 @@ const hasLost = (row, col, grid) => {
 }
 
 const uncoverCell = (row, col, grid) => {
-	if (row >= GRID_SIZE || col >= GRID_SIZE || row < 0 || col < 0 || grid[row][col].status.match(/\s|[0-9]|b/) || grid[row][col].contains.match(/b/)) {
+	if (row >= GRID_SIZE || col >= GRID_SIZE || row < 0 || col < 0 || grid[row][col].status.match(/\s|[0-9]|b/)) {
 		return;
 	}
 	uncoveredCells++;
 	grid[row][col].status = checkBombsAround(row, col, grid);
-	if (grid[row][col].status.match(/[0-9]/)) {
+	console.log(grid[row][col]);
+	if (grid[row][col].status.match(/[0-9]/) || grid[row][col].contains.match(/b/)) {
 		return;
 	}
 	uncoverCell(row - 1, col, grid);
@@ -89,13 +102,13 @@ const parseAnswer = (answer, grid) => {
 	} else if (parseInt(answer) !== NaN) {
 		let row = Math.floor(parseInt(answer) / 100);
 		let col = Math.floor(parseInt(answer) % 100);
+		uncoverCell(row, col, grid);
 		if (hasLost(row, col, grid)) {
 			console.log('Bomb hit!');
+			showBombs(grid);
 			printGrid(grid);
 			rl.close();
 		}
-		uncoverCell(row, col, grid);
-		console.log(uncoveredCells);
 		if (uncoveredCells === GRID_SIZE * GRID_SIZE - NUM_BOMBS) {
 			console.log("You won!");
 			console.log(`Time elapsed: ${(process.hrtime.bigint() - start) / 1000000000n}`)
