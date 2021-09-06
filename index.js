@@ -1,4 +1,6 @@
+const chalk = require('chalk');
 const readline = require("readline");
+
 const rl = readline.createInterface({
 	input: process.stdin,
 	output: process.stdout
@@ -28,7 +30,13 @@ const fillGridWBombs = (nbombs, grid) => {
 const printGrid = (grid) => {
 	for (let i = 0; i < GRID_SIZE; i++) {
 		for (let j = 0; j < GRID_SIZE; j++) {
-			process.stdout.write(`|${grid[i][j].status}|`);
+			if (grid[i][j].status.match(/b/)) {
+				process.stdout.write(`|${chalk.red(grid[i][j].status)}|`);
+			} else if (grid[i][j].status.match(/F/)) {
+				process.stdout.write(`|${chalk.green(grid[i][j].status)}|`);
+			} else {
+				process.stdout.write(`|${grid[i][j].status}|`);
+			}
 		}
 		process.stdout.write('\n');
 	}
@@ -76,7 +84,6 @@ const uncoverCell = (row, col, grid) => {
 	}
 	uncoveredCells++;
 	grid[row][col].status = checkBombsAround(row, col, grid);
-	console.log(grid[row][col]);
 	if (grid[row][col].status.match(/[0-9]/) || grid[row][col].contains.match(/b/)) {
 		return;
 	}
