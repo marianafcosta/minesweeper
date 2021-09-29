@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/marianafcosta/minesweeper/issues"
   },
-  "homepage": "https://github.com/marianafcosta/minesweeper#readme"
+  "homepage": "https://github.com/marianafcosta/minesweeper#readme",
+  "dependencies": {
+    "chalk": "^4.1.2"
+  }
 }
