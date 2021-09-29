@@ -13,6 +13,14 @@ const NUM_BOMBS = 32;
 let uncoveredCells = 0;
 let hasLost = false;
 
+// NOTE: https://gist.github.com/timneutkens/f2933558b8739bbf09104fb27c5c9664
+const clearScreen = () => {
+  const blank = "\n".repeat(process.stdout.rows);
+  console.log(blank);
+  readline.cursorTo(process.stdout, 0, 0);
+  readline.clearScreenDown(process.stdout);
+};
+
 const buildGrid = () => {
   const grid = [];
   for (let i = 0; i < GRID_SIZE; i++) {
@@ -47,6 +55,7 @@ const drawCell = (content) => {
 };
 
 const printGrid = (grid) => {
+  clearScreen();
   process.stdout.write(chalk.yellow(`|${" ".repeat(MAX_DIGITS)}|`));
   for (let i = 0; i < GRID_SIZE; i++) {
     process.stdout.write(
@@ -260,4 +269,5 @@ const grid = buildGrid();
 fillGridWBombs(NUM_BOMBS, grid);
 let start = process.hrtime.bigint();
 
+clearScreen();
 repl(grid);
