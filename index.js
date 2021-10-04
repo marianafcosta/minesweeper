@@ -55,7 +55,6 @@ const drawCell = (content) => {
 };
 
 const printGrid = (grid) => {
-  clearScreen();
   process.stdout.write(chalk.yellow(`|${" ".repeat(MAX_DIGITS)}|`));
   for (let i = 0; i < GRID_SIZE; i++) {
     process.stdout.write(
@@ -150,7 +149,10 @@ const hasWon = () => {
 
 const checkGameStatus = (grid) => {
   if (hasLost) {
-    console.log("Game lost!");
+    console.log("You lost!");
+    console.log(
+      `Time elapsed: ${(process.hrtime.bigint() - start) / 1000000000n}`
+    );
     showBombs(grid);
     printGrid(grid);
     exitGame();
@@ -228,7 +230,8 @@ const validateInput = (input) => {
 };
 
 const repl = (grid) => {
-  rl.question("Cell to uncover (<row><col>):\n", (answer) => {
+  rl.question("Cell to uncover ([row] [col] ['flag'?]):\n", (answer) => {
+    clearScreen()
     parseAnswer(answer, grid);
     printGrid(grid);
     repl(grid);
@@ -236,7 +239,6 @@ const repl = (grid) => {
 };
 
 rl.on("close", () => {
-  console.log("Bye!");
   process.exit(0);
 });
 
