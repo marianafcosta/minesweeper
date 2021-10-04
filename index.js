@@ -164,43 +164,24 @@ const checkGameStatus = (grid) => {
   }
 };
 
-const executeCmd = (action) => {
-  if (action.cmd.match("exit")) {
-    exitGame();
-  } else if (action.cmd.match("flag")) {
-    addFlag(action.row, action.col, grid);
-  } else {
-    return;
-  }
-};
-
 const parseAnswer = (answer, grid) => {
   const action = validateInput(answer);
 
-  if (action.err) {
+  if (action.exit) {
+    exitGame()
+  } else if (action.err) {
     console.log(chalk.red(action.err));
-  } else if (action.cmd) {
-    executeCmd(action);
+  } else if (action.flag) {
+    addFlag(action.row, action.col, grid);
   } else {
     uncoverCell(action.row, action.col, grid);
     checkGameStatus(grid);
   }
 };
 
-const validateCmd = (cmd) => {
-  if (cmd.match("flag")) {
-    return "flag";
-  } else if (cmd.match("exit")) {
-    return "exit";
-  } else {
-    return;
-  }
-};
-
 const validateNums = (rowString, colString) => {
   const row = parseInt(rowString, 10);
   const col = parseInt(colString, 10);
-  console.log(row, col);
   if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
     return [row, col];
   }
@@ -209,47 +190,41 @@ const validateNums = (rowString, colString) => {
 };
 
 const validateInput = (input) => {
-  // TODO
-  // input -> "flag 1 10" (<flag> <row> <col>)
-  const splitInput = input.split(" ");
-  console.log(splitInput);
-  const numInputs = splitInput.length;
-  const returnObj = {
-    cmd: null,
-    row: null,
-    col: null,
-    err: null,
-  };
-  let move, cmd;
 
-  if (numInputs === 3 || numInputs === 1) {
-    cmd = validateCmd(splitInput[0]);
-    if (cmd) {
-      returnObj.cmd = cmd;
-    } else {
-      returnObj.err = "Unrecognized command. Expected [<flag>] <row> <col>";
-      return returnObj;
+  const split = input.split(' ');
+  const action = {
+      row: null,
+      col: null,
+      flag: false,
+      exit: false,
+      err: null,
+    };
+
+    if (input.match('exit')) {
+      action.exit = true;
+      return action
     }
-    if (numInputs === 3) {
-      move = validateNums(splitInput[1], splitInput[2]);
-    }
-  } else if (numInputs === 2) {
-    move = validateNums(splitInput[0], splitInput[1]);
-  } else {
-    returnObj.err = "Wrong number of arguments. Expected [<flag>] <row> <col>";
-    return returnObj;
+
+  if (split.length <= 1) {
+    action.err = 'Not enough arguments'
+    return action;
   }
 
-  if (move) {
-    returnObj.row = move[0];
-    returnObj.col = move[1];
-  } else if (!returnObj.cmd.match("exit")) {
-    // NOTE(Mariana): A command doesn't necessarily require a move set (e.g. "exit")
-    returnObj.err = "Invalid numeric values. Expected [<flag>] <row> <col>";
-    return returnObj;
+  const parsedNums = validateNums(split[0], split[1]);
+
+  if (!parsedNums) {
+    action.err = 'Invalid position'
+    return action;
   }
 
-  return returnObj;
+  action.row = parsedNums[0]
+  action.col = parsedNums[1]
+  
+  if (split.length >= 3 && split[2].match('flag')) {
+    action.flag = true; 
+  }
+
+  return action;
 };
 
 const repl = (grid) => {
