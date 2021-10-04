@@ -6,12 +6,14 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const GRID_SIZE = 16;
-const MAX_DIGITS = Math.floor(GRID_SIZE / 10) + 1;
-const CELL_WIDTH = MAX_DIGITS + 2; // NOTE: We want the numbers to be centered, no matter the digits they have
-const NUM_BOMBS = 1;
-let uncoveredCells = 0;
-let hasLost = false;
+let GRID_SIZE = 16;
+let MAX_DIGITS;
+let CELL_WIDTH; // NOTE: We want the numbers to be centered, no matter the digits they have
+let NUM_BOMBS;
+let uncoveredCells;
+let hasLost;
+let grid;
+let start;
 
 // NOTE: https://gist.github.com/timneutkens/f2933558b8739bbf09104fb27c5c9664
 const clearScreen = () => {
@@ -240,6 +242,20 @@ const validateInput = (input) => {
   return action;
 };
 
+const changeBoardSize = () => {
+  rl.question("Please select a board size (up to 16):\n", (answer) => {
+    const parsedInput = parseInt(answer, 10);
+    if (parsedInput && parsedInput <= 16 && parsedInput > 0) {
+      GRID_SIZE = parsedInput;
+    } else {
+      console.log(chalk.red('The specified board size is not allowed'))
+    }
+    clearScreen()
+    printBanner()
+    menuRepl()
+  });
+}
+
 const repl = (grid) => {
   rl.question("Cell to uncover ([row] [col] ['flag'?]):\n", (answer) => {
     clearScreen()
@@ -255,14 +271,24 @@ const repl = (grid) => {
 };
 
 const menuRepl = () => {
-  rl.question("Please choose an option ('play' | 'exit'):\n", (answer) => {
+  rl.question("Please choose an option ('play' | 'exit' | 'size'):\n", (answer) => {
     clearScreen()
     printBanner()
     if (answer.match('play')) {
       clearScreen()
+      MAX_DIGITS = Math.floor(GRID_SIZE / 10) + 1;
+      CELL_WIDTH = MAX_DIGITS + 2; // NOTE: We want the numbers to be centered, no matter the digits they have
+      NUM_BOMBS = 1;
+      uncoveredCells = 0;
+      hasLost = false;
+      grid = buildGrid();
+      fillGridWBombs(NUM_BOMBS, grid);
+      start = process.hrtime.bigint();
       repl(grid)
     } else if (answer.match('exit')) {
       exitGame()
+    } else if (answer.match('size')) {
+      changeBoardSize();
     } else {
       console.log(chalk.red('Unrecognized option'));
       menuRepl()
@@ -273,10 +299,6 @@ const menuRepl = () => {
 rl.on("close", () => {
   process.exit(0);
 });
-
-const grid = buildGrid();
-fillGridWBombs(NUM_BOMBS, grid);
-let start = process.hrtime.bigint();
 
 clearScreen()
 printBanner()
