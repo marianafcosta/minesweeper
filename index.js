@@ -9,7 +9,7 @@ const rl = readline.createInterface({
 const GRID_SIZE = 16;
 const MAX_DIGITS = Math.floor(GRID_SIZE / 10) + 1;
 const CELL_WIDTH = MAX_DIGITS + 2; // NOTE: We want the numbers to be centered, no matter the digits they have
-const NUM_BOMBS = 32;
+const NUM_BOMBS = 1;
 let uncoveredCells = 0;
 let hasLost = false;
 
@@ -20,6 +20,17 @@ const clearScreen = () => {
   readline.cursorTo(process.stdout, 0, 0);
   readline.clearScreenDown(process.stdout);
 };
+
+const printBanner = () => {
+  console.log(`                                                     
+      (_)                                                     
+____  _ ____  _____  ___ _ _ _ _____ _____ ____  _____  ____ 
+|    \| |  _ \| ___ |/___) | | | ___ | ___ |  _ \| ___ |/ ___)
+| | | | | | | | ____|___ | | | | ____| ____| |_| | ____| |    
+|_|_|_|_|_| |_|_____|___/ \___/|_____)_____)  __/|_____)_|    
+                                           |_|                
+`)
+}
 
 const buildGrid = () => {
   const grid = [];
@@ -140,6 +151,7 @@ const addFlag = (row, col, grid) => {
   }
 };
 const exitGame = () => {
+  clearScreen()
   rl.close();
 };
 
@@ -154,15 +166,15 @@ const checkGameStatus = (grid) => {
       `Time elapsed: ${(process.hrtime.bigint() - start) / 1000000000n}`
     );
     showBombs(grid);
-    printGrid(grid);
-    exitGame();
+    // printGrid(grid);
+    return true;
   } else if (hasWon()) {
     console.log("You won!");
     console.log(
       `Time elapsed: ${(process.hrtime.bigint() - start) / 1000000000n}`
     );
-    printGrid(grid);
-    exitGame();
+    // printGrid(grid);
+    return true;
   }
 };
 
@@ -177,7 +189,6 @@ const parseAnswer = (answer, grid) => {
     addFlag(action.row, action.col, grid);
   } else {
     uncoverCell(action.row, action.col, grid);
-    checkGameStatus(grid);
   }
 };
 
@@ -234,7 +245,28 @@ const repl = (grid) => {
     clearScreen()
     parseAnswer(answer, grid);
     printGrid(grid);
-    repl(grid);
+    if (checkGameStatus(grid)) {
+      printBanner()
+      menuRepl()
+    } else {
+      repl(grid);
+    }
+  });
+};
+
+const menuRepl = () => {
+  rl.question("Please choose an option ('play' | 'exit'):\n", (answer) => {
+    clearScreen()
+    printBanner()
+    if (answer.match('play')) {
+      clearScreen()
+      repl(grid)
+    } else if (answer.match('exit')) {
+      exitGame()
+    } else {
+      console.log(chalk.red('Unrecognized option'));
+      menuRepl()
+    }
   });
 };
 
@@ -246,5 +278,6 @@ const grid = buildGrid();
 fillGridWBombs(NUM_BOMBS, grid);
 let start = process.hrtime.bigint();
 
-clearScreen();
-repl(grid);
+clearScreen()
+printBanner()
+menuRepl();
