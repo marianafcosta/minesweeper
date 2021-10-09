@@ -1,4 +1,5 @@
-const readline = require("readline");
+import { init } from "./logic.js";
+import readline from "readline";
 
 const colors = {
     red: "\x1b[31m",
@@ -308,7 +309,7 @@ const menuRepl = () => {
                 NUM_BOMBS = 1;
                 uncoveredCells = 0;
                 hasLost = false;
-                grid = buildGrid();
+                grid = init(16);
                 fillGridWBombs(NUM_BOMBS, grid);
                 start = process.hrtime.bigint();
                 repl(grid);
