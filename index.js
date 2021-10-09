@@ -45,25 +45,6 @@ ____  _ ____  _____  ___ _ _ _ _____ _____ ____  _____  ____
 `);
 };
 
-const buildGrid = () => {
-    const grid = [];
-    for (let i = 0; i < GRID_SIZE; i++) {
-        grid.push([]);
-        for (let j = 0; j < GRID_SIZE; j++) {
-            grid[i].push({ status: "u", contains: " " });
-        }
-    }
-    return grid;
-};
-
-const fillGridWBombs = (nbombs, grid) => {
-    for (let i = 0; i < nbombs; i++) {
-        grid[Math.floor(Math.random() * GRID_SIZE)][
-            Math.floor(Math.random() * GRID_SIZE)
-        ].contains = "b";
-    }
-};
-
 const drawCell = (content) => {
     if (content.status.match(/b/)) {
         process.stdout.write(
@@ -306,11 +287,10 @@ const menuRepl = () => {
                 clearScreen();
                 MAX_DIGITS = Math.floor(GRID_SIZE / 10) + 1;
                 CELL_WIDTH = MAX_DIGITS + 2; // NOTE: We want the numbers to be centered, no matter the digits they have
-                NUM_BOMBS = 1;
+                NUM_BOMBS = 16;
                 uncoveredCells = 0;
                 hasLost = false;
-                grid = init(16);
-                fillGridWBombs(NUM_BOMBS, grid);
+                grid = init(GRID_SIZE, NUM_BOMBS);
                 start = process.hrtime.bigint();
                 repl(grid);
             } else if (answer.match("exit")) {
