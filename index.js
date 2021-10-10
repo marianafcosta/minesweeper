@@ -1,4 +1,4 @@
-import { init } from "./logic.js";
+import { gameStatus, init, uncoverCell, updateGameStatus } from "./logic.js";
 import readline from "readline";
 
 const colors = {
@@ -21,9 +21,7 @@ let GRID_SIZE = 16;
 let MAX_DIGITS;
 let CELL_WIDTH; // NOTE: We want the numbers to be centered, no matter the digits they have
 let NUM_BOMBS;
-let uncoveredCells;
-let hasLost;
-let grid;
+let game;
 let start;
 
 // NOTE: https://gist.github.com/timneutkens/f2933558b8739bbf09104fb27c5c9664
@@ -103,55 +101,6 @@ const showBombs = (grid) => {
         }
     }
 };
-const isCellValid = (row, col) => {
-    return row < GRID_SIZE && col < GRID_SIZE && row >= 0 && col >= 0;
-};
-
-const checkBombsAround = (row, col, grid) => {
-    let rowInc, colInc;
-    let bombCount = 0;
-    if (grid[row][col].contains.match(/b/)) {
-        return "b";
-    }
-    for (rowInc = -1; rowInc < 2; rowInc++) {
-        for (colInc = -1; colInc < 2; colInc++) {
-            if (isCellValid(row + rowInc, col + colInc)) {
-                if (grid[row + rowInc][col + colInc].contains.match("b")) {
-                    bombCount++;
-                }
-            } else {
-                continue;
-            }
-        }
-    }
-    return `${bombCount <= 0 ? " " : bombCount}`;
-};
-
-const uncoverCell = (row, col, grid) => {
-    if (
-        row >= GRID_SIZE ||
-        col >= GRID_SIZE ||
-        row < 0 ||
-        col < 0 ||
-        grid[row][col].status.match(/\s|[0-9]|b/)
-    ) {
-        return;
-    }
-    uncoveredCells++;
-    grid[row][col].status = checkBombsAround(row, col, grid);
-
-    if (grid[row][col].status.match(/[0-9]/)) {
-        return;
-    } else if (grid[row][col].status.match("b")) {
-        hasLost = true;
-        return;
-    }
-
-    uncoverCell(row - 1, col, grid);
-    uncoverCell(row + 1, col, grid);
-    uncoverCell(row, col - 1, grid);
-    uncoverCell(row, col + 1, grid);
-};
 
 const addFlag = (row, col, grid) => {
     if (grid[row][col].status.match("u")) {
@@ -167,8 +116,8 @@ const hasWon = () => {
     return uncoveredCells === GRID_SIZE * GRID_SIZE - NUM_BOMBS;
 };
 
-const checkGameStatus = (grid) => {
-    if (hasLost) {
+const checkGameStatus = (game) => {
+    if (game.status === gameStatus.LOST) {
         console.log("You lost!");
         console.log(
             `Time elapsed: ${(process.hrtime.bigint() - start) / 1000000000n}`
@@ -176,7 +125,7 @@ const checkGameStatus = (grid) => {
         showBombs(grid);
         // printGrid(grid);
         return true;
-    } else if (hasWon()) {
+    } else if (game.status === gameStatus.WON) {
         console.log("You won!");
         console.log(
             `Time elapsed: ${(process.hrtime.bigint() - start) / 1000000000n}`
@@ -186,7 +135,7 @@ const checkGameStatus = (grid) => {
     }
 };
 
-const parseAnswer = (answer, grid) => {
+const parseAnswer = (answer, game) => {
     const action = validateInput(answer);
 
     if (action.exit) {
@@ -194,9 +143,10 @@ const parseAnswer = (answer, grid) => {
     } else if (action.err) {
         console.log(colorText(action.err, colors.red));
     } else if (action.flag) {
-        addFlag(action.row, action.col, grid);
+        addFlag(action.row, action.col, game.grid);
     } else {
-        uncoverCell(action.row, action.col, grid);
+        uncoverCell(action.row, action.col, game);
+        updateGameStatus(game);
     }
 };
 
@@ -263,16 +213,16 @@ const changeBoardSize = () => {
     });
 };
 
-const repl = (grid) => {
+const repl = (game) => {
     rl.question("Cell to uncover ([row] [col] ['flag'?]):\n", (answer) => {
         clearScreen();
-        parseAnswer(answer, grid);
-        printGrid(grid);
-        if (checkGameStatus(grid)) {
+        parseAnswer(answer, game);
+        printGrid(game.grid);
+        if (checkGameStatus(game)) {
             printBanner();
             menuRepl();
         } else {
-            repl(grid);
+            repl(game);
         }
     });
 };
@@ -287,12 +237,10 @@ const menuRepl = () => {
                 clearScreen();
                 MAX_DIGITS = Math.floor(GRID_SIZE / 10) + 1;
                 CELL_WIDTH = MAX_DIGITS + 2; // NOTE: We want the numbers to be centered, no matter the digits they have
-                NUM_BOMBS = 16;
-                uncoveredCells = 0;
-                hasLost = false;
-                grid = init(GRID_SIZE, NUM_BOMBS);
+                NUM_BOMBS = 1;
+                game = init(GRID_SIZE, NUM_BOMBS);
                 start = process.hrtime.bigint();
-                repl(grid);
+                repl(game);
             } else if (answer.match("exit")) {
                 exitGame();
             } else if (answer.match("size")) {
