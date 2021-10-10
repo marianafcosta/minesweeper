@@ -1,4 +1,10 @@
-import { gameStatus, init, uncoverCell, updateGameStatus } from "./logic.js";
+import {
+    gameStatus,
+    init,
+    uncoverCell,
+    updateGameStatus,
+    addFlag,
+} from "./logic.js";
 import readline from "readline";
 
 const colors = {
@@ -102,18 +108,9 @@ const showBombs = (grid) => {
     }
 };
 
-const addFlag = (row, col, grid) => {
-    if (grid[row][col].status.match("u")) {
-        grid[row][col].status = "F";
-    }
-};
 const exitGame = () => {
     clearScreen();
     rl.close();
-};
-
-const hasWon = () => {
-    return uncoveredCells === GRID_SIZE * GRID_SIZE - NUM_BOMBS;
 };
 
 const checkGameStatus = (game) => {
@@ -143,7 +140,7 @@ const parseAnswer = (answer, game) => {
     } else if (action.err) {
         console.log(colorText(action.err, colors.red));
     } else if (action.flag) {
-        addFlag(action.row, action.col, game.grid);
+        addFlag(action.row, action.col, game);
     } else {
         uncoverCell(action.row, action.col, game);
         updateGameStatus(game);

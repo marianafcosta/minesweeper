@@ -37,6 +37,12 @@ function init(gridSize, numBombs) {
     return game;
 }
 
+const addFlag = (row, col, game) => {
+    if (game.grid[row][col].status.match("u")) {
+        game.grid[row][col].status = "F";
+    }
+};
+
 function checkBombsAround(row, col, game) {
     let rowInc, colInc;
     let bombCount = 0;
@@ -84,4 +90,4 @@ function updateGameStatus(game) {
     }
 }
 
-export { init, uncoverCell, updateGameStatus };
+export { init, uncoverCell, updateGameStatus, addFlag };
