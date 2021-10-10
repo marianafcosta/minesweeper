@@ -1,10 +1,15 @@
-// let uncoveredCells;
-// let hasLost;
-
 export const gameStatus = {
     WON: "won",
     LOST: "lost",
     ONGOING: "ongoing",
+};
+
+// TODO: It can also contain a number encoding the number of nearby bombs
+export const cellStatus = {
+    BOMB: "B",
+    HIDDEN: "U",
+    EMPTY: " ",
+    FLAG: "F",
 };
 
 function isCellValid(row, col, game) {
@@ -24,56 +29,65 @@ function init(gridSize, numBombs) {
     for (let i = 0; i < gridSize; i++) {
         game.grid.push([]);
         for (let j = 0; j < gridSize; j++) {
-            game.grid[i].push({ status: "u", contains: " " });
+            game.grid[i].push({ status: cellStatus.HIDDEN, bomb: false });
         }
     }
 
     for (let i = 0; i < numBombs; i++) {
         game.grid[Math.floor(Math.random() * gridSize)][
             Math.floor(Math.random() * gridSize)
-        ].contains = "b";
+        ].bomb = true;
     }
 
     return game;
 }
 
-const addFlag = (row, col, game) => {
-    if (game.grid[row][col].status.match("u")) {
-        game.grid[row][col].status = "F";
+function addFlag(row, col, game) {
+    if (game.grid[row][col].status === cellStatus.HIDDEN) {
+        game.grid[row][col].status = cellStatus.FLAG;
     }
-};
+}
 
 function checkBombsAround(row, col, game) {
     let rowInc, colInc;
     let bombCount = 0;
-    if (game.grid[row][col].contains.match(/b/)) {
-        return "b";
+    if (game.grid[row][col].bomb) {
+        game.grid[row][col].status = cellStatus.BOMB;
+        return;
     }
     for (rowInc = -1; rowInc < 2; rowInc++) {
         for (colInc = -1; colInc < 2; colInc++) {
             if (isCellValid(row + rowInc, col + colInc, game)) {
-                if (game.grid[row + rowInc][col + colInc].contains.match("b")) {
+                if (game.grid[row + rowInc][col + colInc].bomb) {
                     bombCount++;
                 }
             }
         }
     }
-    return `${bombCount <= 0 ? " " : bombCount}`;
+
+    game.grid[row][col].status =
+        bombCount <= 0 ? cellStatus.EMPTY : `${bombCount}`;
 }
 
 function uncoverCell(row, col, game) {
     if (
         !isCellValid(row, col, game) ||
-        game.grid[row][col].status.match(/\s|[0-9]|b/)
+        game.grid[row][col].status === cellStatus.EMPTY ||
+        game.grid[row][col].status === cellStatus.BOMB ||
+        !isNaN(game.grid[row][col].status)
     ) {
         return;
     }
-    game.uncoveredCells++;
-    game.grid[row][col].status = checkBombsAround(row, col, game);
 
-    if (game.grid[row][col].status.match(/[0-9]/)) {
+    game.uncoveredCells++;
+    checkBombsAround(row, col, game);
+
+    if (
+        !isNaN(game.grid[row][col].status) &&
+        game.grid[row][col].status !== cellStatus.EMPTY
+    ) {
         return;
-    } else if (game.grid[row][col].status.match("b")) {
+    } else if (game.grid[row][col].status === cellStatus.BOMB) {
         game.status = gameStatus.LOST;
         return;
     }

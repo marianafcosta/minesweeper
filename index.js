@@ -1,5 +1,6 @@
 import {
     gameStatus,
+    cellStatus,
     init,
     uncoverCell,
     updateGameStatus,
@@ -50,13 +51,13 @@ ____  _ ____  _____  ___ _ _ _ _____ _____ ____  _____  ____
 };
 
 const drawCell = (content) => {
-    if (content.status.match(/b/)) {
+    if (content.status === cellStatus.BOMB) {
         process.stdout.write(
             `|${colorText(content.status, colors.red)}${" ".repeat(
                 MAX_DIGITS - 1
             )}|`
         );
-    } else if (content.status.match(/F/)) {
+    } else if (content.status === cellStatus.FLAG) {
         process.stdout.write(
             `|${colorText(content.status, colors.green)}${" ".repeat(
                 MAX_DIGITS - 1
@@ -101,8 +102,8 @@ const printGrid = (grid) => {
 const showBombs = (grid) => {
     for (let i = 0; i < GRID_SIZE; i++) {
         for (let j = 0; j < GRID_SIZE; j++) {
-            if (grid[i][j].contains.match(/b/)) {
-                grid[i][j].status = "b";
+            if (grid[i][j].bomb) {
+                grid[i][j].status = cellStatus.BOMB;
             }
         }
     }
