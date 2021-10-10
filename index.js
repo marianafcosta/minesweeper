@@ -115,19 +115,10 @@ const exitGame = () => {
 };
 
 const checkGameStatus = (game) => {
-    if (game.status === gameStatus.LOST) {
-        console.log("You lost!");
-        console.log(
-            `Time elapsed: ${(process.hrtime.bigint() - start) / 1000000000n}`
-        );
-        showBombs(grid);
-        // printGrid(grid);
-        return true;
-    } else if (game.status === gameStatus.WON) {
-        console.log("You won!");
-        console.log(
-            `Time elapsed: ${(process.hrtime.bigint() - start) / 1000000000n}`
-        );
+    if (game.status === gameStatus.LOST || game.status === gameStatus.WON) {
+        console.log(`You ${game.status}!`);
+        console.log(`Time elapsed: ${game.score}`);
+        showBombs(game.grid);
         // printGrid(grid);
         return true;
     }

@@ -16,12 +16,15 @@ function isCellValid(row, col, game) {
     return row < game.gridSize && col < game.gridSize && row >= 0 && col >= 0;
 }
 
+// TODO: Score isn't the best name, because the lower the time spent, the better
 function init(gridSize, numBombs) {
     const game = {
         grid: [],
         gridSize,
         numBombs,
         status: gameStatus.ONGOING,
+        startTime: process.hrtime.bigint(),
+        score: 0,
         uncoveredCells: 0,
     };
 
@@ -88,7 +91,9 @@ function uncoverCell(row, col, game) {
     ) {
         return;
     } else if (game.grid[row][col].status === cellStatus.BOMB) {
+        console.log("bomb");
         game.status = gameStatus.LOST;
+        game.score = (process.hrtime.bigint() - game.startTime) / 1000000000n;
         return;
     }
 
@@ -99,8 +104,12 @@ function uncoverCell(row, col, game) {
 }
 
 function updateGameStatus(game) {
-    if (game.uncoveredCells === game.gridSize * game.gridSize - game.numBombs) {
+    if (
+        game.uncoveredCells === game.gridSize * game.gridSize - game.numBombs &&
+        game.status === gameStatus.ONGOING // NOTE: We have to check this because if a bomb was found, the lost game status that was already set would overwritten
+    ) {
         game.status = gameStatus.WON;
+        game.score = (process.hrtime.bigint() - game.startTime) / 1000000000n;
     }
 }
 
