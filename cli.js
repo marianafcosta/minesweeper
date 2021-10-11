@@ -5,8 +5,15 @@ const colors = {
     red: "\x1b[31m",
     green: "\x1b[32m",
     yellow: "\x1b[33m",
+    white: "\x1b[0m",
 };
 
+export const messageType = {
+    ERROR: "red",
+    INFO: "white",
+};
+
+// NOTE: https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
 const colorText = (text, color) => {
     return `${color}${text}\x1b[0m`; // NOTE: '\x1b[0m' resets the terminal color
 };
@@ -55,4 +62,8 @@ function printGrid(grid, showBombs) {
     process.stdout.write("\n");
 }
 
-export { printGrid };
+function printMessage(message, type) {
+    console.log(colorText(message, colors[type]));
+}
+
+export { printGrid, printMessage };

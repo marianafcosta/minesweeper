@@ -1,24 +1,12 @@
 import {
     gameStatus,
-    cellStatus,
     init,
     uncoverCell,
     updateGameStatus,
     addFlag,
 } from "./logic.js";
-import { printGrid } from "./cli.js";
+import { messageType, printGrid, printMessage } from "./cli.js";
 import readline from "readline";
-
-const colors = {
-    red: "\x1b[31m",
-    green: "\x1b[32m",
-    yellow: "\x1b[33m",
-};
-
-// NOTE: https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
-const colorText = (text, color) => {
-    return `${color}${text}\x1b[0m`; // NOTE: '\x1b[0m' resets the terminal color
-};
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -57,9 +45,8 @@ const exitGame = () => {
 
 const checkGameStatus = (game) => {
     if (game.status === gameStatus.LOST || game.status === gameStatus.WON) {
-        console.log(`You ${game.status}!`);
-        console.log(`Time elapsed: ${game.score}`);
-        // showBombs(game.grid);
+        printMessage(`You ${game.status}!`, info);
+        printMessage(`Time elapsed: ${game.score}`, info);
         printGrid(game.grid, true);
         return true;
     }
@@ -71,7 +58,7 @@ const parseAnswer = (answer, game) => {
     if (action.exit) {
         exitGame();
     } else if (action.err) {
-        console.log(colorText(action.err, colors.red));
+        printMessage(action.err, messageType.ERROR);
     } else if (action.flag) {
         addFlag(action.row, action.col, game);
     } else {
@@ -133,8 +120,9 @@ const changeBoardSize = () => {
         if (parsedInput && parsedInput <= 16 && parsedInput > 0) {
             GRID_SIZE = parsedInput;
         } else {
-            console.log(
-                colorText("The specified board size is not allowed", colors.red)
+            printMessage(
+                "The specified board size is not allowed",
+                messageType.ERROR
             );
         }
         clearScreen();
@@ -175,7 +163,7 @@ const menuRepl = () => {
             } else if (answer.match("size")) {
                 changeBoardSize();
             } else {
-                console.log(colorText("Unrecognized option", colors.red));
+                printMessage("Unrecognized option", messageType.ERROR);
                 menuRepl();
             }
         }
