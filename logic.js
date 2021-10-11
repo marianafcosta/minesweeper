@@ -7,7 +7,7 @@ export const gameStatus = {
 // TODO: It can also contain a number encoding the number of nearby bombs
 export const cellStatus = {
     BOMB: "B",
-    HIDDEN: "U",
+    HIDDEN: ".",
     EMPTY: " ",
     FLAG: "F",
 };

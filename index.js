@@ -31,8 +31,8 @@ const exitGame = () => {
 
 const checkGameStatus = (game) => {
     if (game.status === gameStatus.LOST || game.status === gameStatus.WON) {
-        printMessage(`You ${game.status}!`, info);
-        printMessage(`Time elapsed: ${game.score}`, info);
+        printMessage(`You ${game.status}!`, messageType.INFO);
+        printMessage(`Time elapsed: ${game.score}`, messageType.INFO);
         printGrid(game, true);
         return true;
     }
