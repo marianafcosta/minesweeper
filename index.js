@@ -5,7 +5,13 @@ import {
     updateGameStatus,
     addFlag,
 } from "./logic.js";
-import { messageType, printGrid, printMessage } from "./cli.js";
+import {
+    messageType,
+    printGrid,
+    printMessage,
+    clearScreen,
+    printBanner,
+} from "./cli.js";
 import readline from "readline";
 
 const rl = readline.createInterface({
@@ -14,29 +20,9 @@ const rl = readline.createInterface({
 });
 
 export let GRID_SIZE = 16;
-export let MAX_DIGITS;
-let CELL_WIDTH; // NOTE: We want the numbers to be centered, no matter the digits they have
+// let CELL_WIDTH; // NOTE: We want the numbers to be centered, no matter the digits they have
 let NUM_BOMBS;
 let game;
-
-// NOTE: https://gist.github.com/timneutkens/f2933558b8739bbf09104fb27c5c9664
-const clearScreen = () => {
-    const blank = "\n".repeat(process.stdout.rows);
-    console.log(blank);
-    readline.cursorTo(process.stdout, 0, 0);
-    readline.clearScreenDown(process.stdout);
-};
-
-const printBanner = () => {
-    console.log(`                                                     
-      (_)                                                     
-____  _ ____  _____  ___ _ _ _ _____ _____ ____  _____  ____ 
-|    \| |  _ \| ___ |/___) | | | ___ | ___ |  _ \| ___ |/ ___)
-| | | | | | | | ____|___ | | | | ____| ____| |_| | ____| |    
-|_|_|_|_|_| |_|_____|___/ \___/|_____)_____)  __/|_____)_|    
-                                           |_|                
-`);
-};
 
 const exitGame = () => {
     clearScreen();
@@ -47,7 +33,7 @@ const checkGameStatus = (game) => {
     if (game.status === gameStatus.LOST || game.status === gameStatus.WON) {
         printMessage(`You ${game.status}!`, info);
         printMessage(`Time elapsed: ${game.score}`, info);
-        printGrid(game.grid, true);
+        printGrid(game, true);
         return true;
     }
 };
@@ -135,7 +121,7 @@ const repl = (game) => {
     rl.question("Cell to uncover ([row] [col] ['flag'?]):\n", (answer) => {
         clearScreen();
         parseAnswer(answer, game);
-        printGrid(game.grid);
+        printGrid(game);
         if (checkGameStatus(game)) {
             printBanner();
             menuRepl();
@@ -153,8 +139,7 @@ const menuRepl = () => {
             printBanner();
             if (answer.match("play")) {
                 clearScreen();
-                MAX_DIGITS = Math.floor(GRID_SIZE / 10) + 1;
-                CELL_WIDTH = MAX_DIGITS + 2; // NOTE: We want the numbers to be centered, no matter the digits they have
+                // CELL_WIDTH = MAX_DIGITS + 2; // NOTE: We want the numbers to be centered, no matter the digits they have
                 NUM_BOMBS = 32;
                 game = init(GRID_SIZE, NUM_BOMBS);
                 repl(game);

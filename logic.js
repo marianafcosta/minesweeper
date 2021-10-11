@@ -22,6 +22,7 @@ function init(gridSize, numBombs) {
         grid: [],
         gridSize,
         numBombs,
+        maxCellDigits: Math.floor(gridSize / 10) + 1,
         status: gameStatus.ONGOING,
         startTime: process.hrtime.bigint(),
         score: 0,
