@@ -6,6 +6,7 @@ import {
     updateGameStatus,
     addFlag,
 } from "./logic.js";
+import { printGrid } from "./cli.js";
 import readline from "readline";
 
 const colors = {
@@ -24,12 +25,11 @@ const rl = readline.createInterface({
     output: process.stdout,
 });
 
-let GRID_SIZE = 16;
-let MAX_DIGITS;
+export let GRID_SIZE = 16;
+export let MAX_DIGITS;
 let CELL_WIDTH; // NOTE: We want the numbers to be centered, no matter the digits they have
 let NUM_BOMBS;
 let game;
-let start;
 
 // NOTE: https://gist.github.com/timneutkens/f2933558b8739bbf09104fb27c5c9664
 const clearScreen = () => {
@@ -50,65 +50,6 @@ ____  _ ____  _____  ___ _ _ _ _____ _____ ____  _____  ____
 `);
 };
 
-const drawCell = (content) => {
-    if (content.status === cellStatus.BOMB) {
-        process.stdout.write(
-            `|${colorText(content.status, colors.red)}${" ".repeat(
-                MAX_DIGITS - 1
-            )}|`
-        );
-    } else if (content.status === cellStatus.FLAG) {
-        process.stdout.write(
-            `|${colorText(content.status, colors.green)}${" ".repeat(
-                MAX_DIGITS - 1
-            )}|`
-        );
-    } else {
-        process.stdout.write(
-            `|${content.status}${" ".repeat(MAX_DIGITS - 1)}|`
-        );
-    }
-};
-
-const printGrid = (grid) => {
-    process.stdout.write(
-        colorText(`|${" ".repeat(MAX_DIGITS)}|`, colors.yellow)
-    );
-    for (let i = 0; i < GRID_SIZE; i++) {
-        process.stdout.write(
-            colorText(
-                `|${i}${" ".repeat(MAX_DIGITS - (Math.floor(i / 10) + 1))}|`,
-                colors.yellow
-            )
-        );
-    }
-
-    process.stdout.write("\n");
-    for (let i = 0; i < GRID_SIZE; i++) {
-        process.stdout.write(
-            colorText(
-                `|${i}${" ".repeat(MAX_DIGITS - (Math.floor(i / 10) + 1))}|`,
-                colors.yellow
-            )
-        );
-        for (let j = 0; j < GRID_SIZE; j++) {
-            drawCell(grid[i][j]);
-        }
-        process.stdout.write("\n");
-    }
-    process.stdout.write("\n");
-};
-
-const showBombs = (grid) => {
-    for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
-            if (grid[i][j].bomb) {
-                grid[i][j].status = cellStatus.BOMB;
-            }
-        }
-    }
-};
-
 const exitGame = () => {
     clearScreen();
     rl.close();
@@ -118,8 +59,8 @@ const checkGameStatus = (game) => {
     if (game.status === gameStatus.LOST || game.status === gameStatus.WON) {
         console.log(`You ${game.status}!`);
         console.log(`Time elapsed: ${game.score}`);
-        showBombs(game.grid);
-        // printGrid(grid);
+        // showBombs(game.grid);
+        printGrid(game.grid, true);
         return true;
     }
 };
@@ -226,9 +167,8 @@ const menuRepl = () => {
                 clearScreen();
                 MAX_DIGITS = Math.floor(GRID_SIZE / 10) + 1;
                 CELL_WIDTH = MAX_DIGITS + 2; // NOTE: We want the numbers to be centered, no matter the digits they have
-                NUM_BOMBS = 1;
+                NUM_BOMBS = 32;
                 game = init(GRID_SIZE, NUM_BOMBS);
-                start = process.hrtime.bigint();
                 repl(game);
             } else if (answer.match("exit")) {
                 exitGame();
