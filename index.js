@@ -48,7 +48,7 @@ const parseAnswer = (answer, game) => {
     } else if (action.flag) {
         addFlag(action.row, action.col, game);
     } else {
-        uncoverCell(action.row, action.col, game);
+        uncoverCell(action.row, action.col, game, true);
         updateGameStatus(game);
     }
 };

@@ -73,11 +73,12 @@ function checkBombsAround(row, col, game) {
         bombCount <= 0 ? cellStatus.EMPTY : `${bombCount}`;
 }
 
-function uncoverCell(row, col, game) {
+function uncoverCell(row, col, game, firstCall) {
     if (
         !isCellValid(row, col, game) ||
         game.grid[row][col].status === cellStatus.EMPTY ||
         game.grid[row][col].status === cellStatus.BOMB ||
+        (game.grid[row][col].status === cellStatus.FLAG && !firstCall) ||
         !isNaN(game.grid[row][col].status)
     ) {
         return;
@@ -92,16 +93,15 @@ function uncoverCell(row, col, game) {
     ) {
         return;
     } else if (game.grid[row][col].status === cellStatus.BOMB) {
-        console.log("bomb");
         game.status = gameStatus.LOST;
         game.score = (process.hrtime.bigint() - game.startTime) / 1000000000n;
         return;
     }
 
-    uncoverCell(row - 1, col, game);
-    uncoverCell(row + 1, col, game);
-    uncoverCell(row, col - 1, game);
-    uncoverCell(row, col + 1, game);
+    uncoverCell(row - 1, col, game, false);
+    uncoverCell(row + 1, col, game, false);
+    uncoverCell(row, col - 1, game, false);
+    uncoverCell(row, col + 1, game, false);
 }
 
 function updateGameStatus(game) {
