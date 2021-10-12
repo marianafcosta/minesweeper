@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <title>Socket.IO test</title>
+    </head>
+    <body>
+        <h1>hi</h1>
+        <button id="send" type="button">Send game state</button>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io();
+            const button = document.getElementById("send");
+
+            button.addEventListener("click", () => {
+                console.log("sending game state");
+                socket.emit("play", { gridSize: 16 });
+            });
+        </script>
+    </body>
+</html>

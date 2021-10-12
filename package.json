@@ -12,5 +12,9 @@
         "url": "git+https://github.com/marianafcosta/minesweeper.git"
     },
     "author": "Mariana Costa",
-    "license": "MIT"
+    "license": "MIT",
+    "dependencies": {
+        "express": "^4.17.1",
+        "socket.io": "^4.2.0"
+    }
 }
