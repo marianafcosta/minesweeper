@@ -49,6 +49,8 @@ function init(gridSize, numBombs) {
 function addFlag(row, col, game) {
     if (game.grid[row][col].status === cellStatus.HIDDEN) {
         game.grid[row][col].status = cellStatus.FLAG;
+    } else if (game.grid[row][col].status === cellStatus.FLAG) {
+        game.grid[row][col].status = cellStatus.HIDDEN;
     }
 }
 
