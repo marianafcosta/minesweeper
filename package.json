@@ -5,16 +5,12 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "start": "node index.js"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/marianafcosta/minesweeper.git"
     },
     "author": "Mariana Costa",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/marianafcosta/minesweeper/issues"
-    },
-    "homepage": "https://github.com/marianafcosta/minesweeper#readme"
+    "license": "MIT"
 }

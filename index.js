@@ -20,7 +20,8 @@ const rl = readline.createInterface({
 });
 
 export let GRID_SIZE = 16;
-// let CELL_WIDTH; // NOTE: We want the numbers to be centered, no matter the digits they have
+// TODO: Center the content of the cells
+// let CELL_WIDTH;
 let NUM_BOMBS;
 let game;
 
@@ -139,7 +140,8 @@ const menuRepl = () => {
             printBanner();
             if (answer.match("play")) {
                 clearScreen();
-                // CELL_WIDTH = MAX_DIGITS + 2; // NOTE: We want the numbers to be centered, no matter the digits they have
+                // TODO: Center the content of the cells
+                // CELL_WIDTH = MAX_DIGITS + 2;
                 NUM_BOMBS = 32;
                 game = init(GRID_SIZE, NUM_BOMBS);
                 repl(game);
