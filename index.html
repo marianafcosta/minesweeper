@@ -4,15 +4,26 @@
     </head>
     <body>
         <h1>hi</h1>
-        <button id="send" type="button">Send game state</button>
+        <button id="send" type="button">Initalize game</button>
+        <pre><code id="json"></code></pre>
         <script src="/socket.io/socket.io.js"></script>
         <script>
             const socket = io();
             const button = document.getElementById("send");
 
+            socket.on("init", (game) => {
+                console.log("Received initialized game");
+                console.log(game);
+                document.getElementById("json").textContent = JSON.stringify(
+                    game,
+                    undefined,
+                    2
+                );
+            });
+
             button.addEventListener("click", () => {
-                console.log("sending game state");
-                socket.emit("play", { gridSize: 16 });
+                console.log("Request game initialisation");
+                socket.emit("init");
             });
         </script>
     </body>

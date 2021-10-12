@@ -2,6 +2,7 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import { resolve } from "path";
+import { init } from "./logic.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -12,14 +13,15 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-    console.log("a user connected");
+    console.log(`Socket ${socket.id} connected`);
 
     socket.on("disconnect", () => {
-        console.log("a user disconnected");
+        console.log(`Socket ${socket.id} disconnected`);
     });
 
-    socket.on("play", (game) => {
-        console.log("received game state", game);
+    socket.on("init", () => {
+        socket.emit("init", init(16, 32));
+        console.log(`Initialized game for socket ${socket.id}`);
     });
 });
 

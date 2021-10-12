@@ -24,7 +24,7 @@ function init(gridSize, numBombs) {
         numBombs,
         maxCellDigits: Math.floor(gridSize / 10) + 1,
         status: gameStatus.ONGOING,
-        startTime: process.hrtime.bigint(),
+        startTime: Number(process.hrtime.bigint()), // NOTE: JSON.stringify() doesn't know how to handle BigInt's
         score: 0,
         uncoveredCells: 0,
     };
@@ -96,7 +96,8 @@ function uncoverCell(row, col, game, firstCall) {
         return;
     } else if (game.grid[row][col].status === cellStatus.BOMB) {
         game.status = gameStatus.LOST;
-        game.score = (process.hrtime.bigint() - game.startTime) / 1000000000n;
+        game.score =
+            (Number(process.hrtime.bigint()) - game.startTime) / 1000000000;
         return;
     }
 
@@ -112,7 +113,8 @@ function updateGameStatus(game) {
         game.status === gameStatus.ONGOING // NOTE: We have to check this because if a bomb was found, the lost game status that was already set would overwritten
     ) {
         game.status = gameStatus.WON;
-        game.score = (process.hrtime.bigint() - game.startTime) / 1000000000n;
+        game.score =
+            (Number(process.hrtime.bigint()) - game.startTime) / 1000000000;
     }
 }
 
