@@ -5,25 +5,52 @@
     <body>
         <h1>hi</h1>
         <button id="send" type="button">Initalize game</button>
+        <button id="play" type="button">Play</button>
+        <form>
+            <label for="row">Row</label>
+            <input type="number" id="row" name="row" min="0" max="15" />
+            <label for="col">Column</label>
+            <input type="number" id="col" name="col" min="0" max="15" />
+        </form>
         <pre><code id="json"></code></pre>
         <script src="/socket.io/socket.io.js"></script>
         <script>
             const socket = io();
-            const button = document.getElementById("send");
+            const initButton = document.getElementById("send");
+            const playButton = document.getElementById("play");
+            let game;
 
-            socket.on("init", (game) => {
-                console.log("Received initialized game");
-                console.log(game);
+            function printGame() {
                 document.getElementById("json").textContent = JSON.stringify(
                     game,
                     undefined,
                     2
                 );
+            }
+            printGame();
+
+            socket.on("init", (_game) => {
+                console.log("Received initialized game");
+                game = _game;
+                printGame();
             });
 
-            button.addEventListener("click", () => {
+            socket.on("play", (_game) => {
+                console.log("Received updated game");
+                game = _game;
+                printGame();
+            });
+
+            initButton.addEventListener("click", () => {
                 console.log("Request game initialisation");
                 socket.emit("init");
+            });
+
+            playButton.addEventListener("click", () => {
+                console.log("Playing");
+                const row = parseInt(document.getElementById("row").value, 10);
+                const col = parseInt(document.getElementById("col").value, 10);
+                socket.emit("play", { row, col, game });
             });
         </script>
     </body>

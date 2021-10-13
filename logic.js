@@ -76,6 +76,10 @@ function checkBombsAround(row, col, game) {
 }
 
 function uncoverCell(row, col, game, firstCall) {
+    if (game.status !== gameStatus.ONGOING) {
+        return;
+    }
+
     if (
         !isCellValid(row, col, game) ||
         game.grid[row][col].status === cellStatus.EMPTY ||

@@ -2,7 +2,7 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import { resolve } from "path";
-import { init } from "./logic.js";
+import { init, uncoverCell } from "./logic.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -22,6 +22,12 @@ io.on("connection", (socket) => {
     socket.on("init", () => {
         socket.emit("init", init(16, 32));
         console.log(`Initialized game for socket ${socket.id}`);
+    });
+
+    socket.on("play", ({ row, col, game }) => {
+        uncoverCell(row, col, game, true);
+        console.log(`Uncovering cell ${row} ${col} for socket ${socket.id}`);
+        socket.emit("play", game);
     });
 });
 
