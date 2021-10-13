@@ -13,7 +13,6 @@
         <p id="status"></p>
         <div class="buttons">
             <button id="send" type="button">Initalize game</button>
-            <button id="play" type="button">Play</button>
         </div>
         <form class="init-form">
             <label for="grid-size">Grid size</label>
@@ -27,20 +26,35 @@
             <label for="num-bombs">Number of bombs</label>
             <input type="number" id="num-bombs" name="num-bombs" min="0" />
         </form>
-        <form class="play-form">
+        <form id="play" class="play-form">
             <label for="row">Row</label>
-            <input type="number" id="row" name="row" min="0" max="15" />
+            <input
+                type="number"
+                id="row"
+                name="row"
+                min="0"
+                max="15"
+                required
+            />
             <label for="col">Column</label>
-            <input type="number" id="col" name="col" min="0" max="15" />
+            <input
+                type="number"
+                id="col"
+                name="col"
+                min="0"
+                max="15"
+                required
+            />
             <label for="flag">Flag?</label>
             <input type="checkbox" id="flag" name="flag" />
+            <input type="submit" value="Play" />
         </form>
         <pre><code id="grid"></code></pre>
         <script src="/socket.io/socket.io.js"></script>
         <script>
             const socket = io();
             const initButton = document.getElementById("send");
-            const playButton = document.getElementById("play");
+            const playForm = document.getElementById("play");
             let game;
 
             const gameStatus = {
@@ -93,7 +107,6 @@
                     }
                     display += "\n";
                 }
-                console.log(display);
 
                 display += "\n";
 
@@ -118,6 +131,8 @@
             function updateGame(_game) {
                 console.log("Received initialized game");
                 game = _game;
+                document.getElementById("row").max = game.gridSize - 1;
+                document.getElementById("col").max = game.gridSize - 1;
                 printGame();
                 updateStatus();
             }
@@ -151,7 +166,8 @@
                 });
             });
 
-            playButton.addEventListener("click", () => {
+            playForm.addEventListener("submit", (e) => {
+                e.preventDefault();
                 console.log("Playing");
                 const row = parseInt(document.getElementById("row").value, 10);
                 const col = parseInt(document.getElementById("col").value, 10);
