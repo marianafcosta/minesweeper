@@ -1,13 +1,21 @@
 <html>
     <head>
         <title>Minesweeper</title>
+        <style>
+            .init-form,
+            .play-form {
+                margin-top: 16px;
+            }
+        </style>
     </head>
     <body>
         <h1>Minesweeper</h1>
         <p id="status"></p>
-        <button id="send" type="button">Initalize game</button>
-        <button id="play" type="button">Play</button>
-        <form>
+        <div class="buttons">
+            <button id="send" type="button">Initalize game</button>
+            <button id="play" type="button">Play</button>
+        </div>
+        <form class="init-form">
             <label for="grid-size">Grid size</label>
             <input
                 type="number"
@@ -19,7 +27,7 @@
             <label for="num-bombs">Number of bombs</label>
             <input type="number" id="num-bombs" name="num-bombs" min="0" />
         </form>
-        <form>
+        <form class="play-form">
             <label for="row">Row</label>
             <input type="number" id="row" name="row" min="0" max="15" />
             <label for="col">Column</label>
@@ -27,7 +35,7 @@
             <label for="flag">Flag?</label>
             <input type="checkbox" id="flag" name="flag" />
         </form>
-        <pre><code id="json"></code></pre>
+        <pre><code id="grid"></code></pre>
         <script src="/socket.io/socket.io.js"></script>
         <script>
             const socket = io();
@@ -41,11 +49,60 @@
                 ONGOING: "ongoing",
             };
 
+            const cellStatus = {
+                BOMB: "B",
+                HIDDEN: ".",
+                EMPTY: " ",
+                FLAG: "F",
+            };
+
+            function drawCell(cell, maxCellDigits, showBombs) {
+                let displayText;
+                if (showBombs && cell.bomb) {
+                    displayText = cellStatus.BOMB;
+                } else {
+                    displayText = cell.status;
+                }
+
+                return `|${displayText}${" ".repeat(maxCellDigits - 1)}|`;
+            }
+
+            function printGrid(showBombs) {
+                let display = "";
+                display += `|${" ".repeat(game.maxCellDigits)}|`;
+
+                for (let i = 0; i < game.gridSize; i++) {
+                    display += `|${i}${" ".repeat(
+                        game.maxCellDigits - (Math.floor(i / 10) + 1)
+                    )}|`;
+                }
+
+                display += "\n";
+
+                for (let i = 0; i < game.gridSize; i++) {
+                    display += `|${i}${" ".repeat(
+                        game.maxCellDigits - (Math.floor(i / 10) + 1)
+                    )}|`;
+
+                    for (let j = 0; j < game.gridSize; j++) {
+                        display += drawCell(
+                            game.grid[i][j],
+                            game.maxCellDigits,
+                            showBombs
+                        );
+                    }
+                    display += "\n";
+                }
+                console.log(display);
+
+                display += "\n";
+
+                return display;
+            }
+
             function printGame() {
-                document.getElementById("json").textContent = JSON.stringify(
-                    game,
-                    undefined,
-                    2
+                document.getElementById("grid").textContent = printGrid(
+                    game.status !== gameStatus.ONGOING
                 );
             }
 
