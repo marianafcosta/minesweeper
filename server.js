@@ -2,7 +2,7 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import { resolve } from "path";
-import { addFlag, init, uncoverCell } from "./logic.js";
+import { addFlag, init, uncoverCell, updateGameStatus } from "./logic.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -20,13 +20,14 @@ io.on("connection", (socket) => {
     });
 
     socket.on("init", () => {
-        socket.emit("init", init(16, 32));
+        socket.emit("init", init(16, 1));
         console.log(`Initialized game for socket ${socket.id}`);
     });
 
     socket.on("play", ({ row, col, game }) => {
         if (row !== null && col !== null && game) {
             uncoverCell(row, col, game, true);
+            updateGameStatus(game);
             console.log(
                 `Uncovering cell ${row} ${col} for socket ${socket.id}`
             );

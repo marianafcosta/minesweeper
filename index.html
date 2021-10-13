@@ -1,9 +1,10 @@
 <html>
     <head>
-        <title>Socket.IO test</title>
+        <title>Minesweeper</title>
     </head>
     <body>
-        <h1>hi</h1>
+        <h1>Minesweeper</h1>
+        <p id="status"></p>
         <button id="send" type="button">Initalize game</button>
         <button id="play" type="button">Play</button>
         <form>
@@ -22,6 +23,12 @@
             const playButton = document.getElementById("play");
             let game;
 
+            const gameStatus = {
+                WON: "won",
+                LOST: "lost",
+                ONGOING: "ongoing",
+            };
+
             function printGame() {
                 document.getElementById("json").textContent = JSON.stringify(
                     game,
@@ -30,14 +37,25 @@
                 );
             }
 
+            function updateStatus() {
+                const status = document.getElementById("status");
+                if (game.status !== gameStatus.ONGOING) {
+                    status.innerText = `You ${game.status}!`;
+                } else {
+                    status.innerText = "";
+                }
+            }
+
             function updateGame(_game) {
                 console.log("Received initialized game");
                 game = _game;
                 printGame();
+                updateStatus();
             }
 
             socket.on("init", (_game) => {
                 updateGame(_game);
+                updateStatus();
             });
 
             socket.on("play", (_game) => {
@@ -49,7 +67,7 @@
             });
 
             initButton.addEventListener("click", () => {
-                console.log("Request game initialisation");
+                console.log("Request game initialization");
                 socket.emit("init");
             });
 
