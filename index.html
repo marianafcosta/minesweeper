@@ -8,6 +8,18 @@
         <button id="send" type="button">Initalize game</button>
         <button id="play" type="button">Play</button>
         <form>
+            <label for="grid-size">Grid size</label>
+            <input
+                type="number"
+                id="grid-size"
+                name="grid-size"
+                min="1"
+                max="16"
+            />
+            <label for="num-bombs">Number of bombs</label>
+            <input type="number" id="num-bombs" name="num-bombs" min="0" />
+        </form>
+        <form>
             <label for="row">Row</label>
             <input type="number" id="row" name="row" min="0" max="15" />
             <label for="col">Column</label>
@@ -68,7 +80,18 @@
 
             initButton.addEventListener("click", () => {
                 console.log("Request game initialization");
-                socket.emit("init");
+                const gridSize = parseInt(
+                    document.getElementById("grid-size").value,
+                    10
+                );
+                const numBombs = parseInt(
+                    document.getElementById("num-bombs").value,
+                    10
+                );
+                socket.emit("init", {
+                    gridSize: gridSize || 16,
+                    numBombs: numBombs || 32,
+                });
             });
 
             playButton.addEventListener("click", () => {

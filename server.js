@@ -19,8 +19,8 @@ io.on("connection", (socket) => {
         console.log(`Socket ${socket.id} disconnected`);
     });
 
-    socket.on("init", () => {
-        socket.emit("init", init(16, 1));
+    socket.on("init", ({ gridSize, numBombs }) => {
+        socket.emit("init", init(gridSize, numBombs));
         console.log(`Initialized game for socket ${socket.id}`);
     });
 
