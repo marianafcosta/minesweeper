@@ -25,18 +25,23 @@ io.on("connection", (socket) => {
     });
 
     socket.on("play", ({ row, col, game }) => {
-        uncoverCell(row, col, game, true);
-        console.log(`Uncovering cell ${row} ${col} for socket ${socket.id}`);
-        socket.emit("play", game);
+        if (row !== null && col !== null && game) {
+            uncoverCell(row, col, game, true);
+            console.log(
+                `Uncovering cell ${row} ${col} for socket ${socket.id}`
+            );
+            socket.emit("play", game);
+        }
     });
 
     socket.on("flag", ({ row, col, game }) => {
-        addFlag(row, col, game);
-        console.log(
-            `Placing a flag in cell ${row} ${col} for socket ${socket.id}`
-        );
-        console.log(game.grid[0][0]);
-        socket.emit("flag", game);
+        if (row !== null && col !== null && game) {
+            addFlag(row, col, game);
+            console.log(
+                `Placing a flag in cell ${row} ${col} for socket ${socket.id}`
+            );
+            socket.emit("flag", game);
+        }
     });
 });
 
