@@ -4,14 +4,14 @@ import {
     uncoverCell,
     updateGameStatus,
     addFlag,
-} from "./logic.js";
+} from "../logic.js";
 import {
     messageType,
     printGrid,
     printMessage,
     clearScreen,
     printBanner,
-} from "./cli.js";
+} from "./display.js";
 import readline from "readline";
 
 const rl = readline.createInterface({

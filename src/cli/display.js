@@ -1,4 +1,4 @@
-import { cellStatus } from "./logic.js";
+import { cellStatus } from "../logic.js";
 import readline from "readline";
 
 const colors = {

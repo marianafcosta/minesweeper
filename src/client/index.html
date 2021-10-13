@@ -50,9 +50,13 @@
             <input type="submit" value="Play" />
         </form>
         <pre><code id="grid"></code></pre>
-        <script src="/socket.io/socket.io.js"></script>
+        <script
+            src="https://cdn.socket.io/4.2.0/socket.io.min.js"
+            integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj"
+            crossorigin="anonymous"
+        ></script>
         <script>
-            const socket = io();
+            const socket = io("ws://localhost:3000");
             const initButton = document.getElementById("send");
             const playForm = document.getElementById("play");
             let game;

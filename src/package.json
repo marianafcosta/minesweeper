@@ -2,10 +2,13 @@
     "name": "minesweeper",
     "version": "1.0.0",
     "description": "Minesweeper clone",
-    "main": "index.js",
+    "main": "./src/index.js",
     "type": "module",
     "scripts": {
-        "start": "node index.js"
+        "cli": "node src/index.js",
+        "server": "node server.js",
+        "client": "serve client",
+        "dev": "concurrently \"npm run server\" \"npm run client\""
     },
     "repository": {
         "type": "git",
