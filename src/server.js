@@ -29,7 +29,7 @@ const db = await connectDb();
 async function updateHighScore(username, score) {
     db.collection("players").updateOne(
         { username },
-        { $set: { highScore: score } }
+        { $max: { highScore: score } }
     );
 }
 
@@ -62,6 +62,7 @@ io.on("connection", (socket) => {
             );
             uncoverCell(row, col, game, true);
             updateGameStatus(game);
+
             if (game.status !== gameStatus.ONGOING) {
                 if (game.status === gameStatus.WON) {
                     await updateHighScore("test2", {
