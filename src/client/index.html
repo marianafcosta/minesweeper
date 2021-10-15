@@ -190,11 +190,19 @@
 
             playForm.addEventListener("submit", (e) => {
                 e.preventDefault();
-                console.log("Playing");
-                const row = parseInt(document.getElementById("row").value, 10);
-                const col = parseInt(document.getElementById("col").value, 10);
-                const flag = document.getElementById("flag").checked;
-                socket.emit(flag ? "flag" : "play", { row, col, game });
+                if (game.status === gameStatus.ONGOING) {
+                    console.log("Playing");
+                    const row = parseInt(
+                        document.getElementById("row").value,
+                        10
+                    );
+                    const col = parseInt(
+                        document.getElementById("col").value,
+                        10
+                    );
+                    const flag = document.getElementById("flag").checked;
+                    socket.emit(flag ? "flag" : "play", { row, col, game });
+                }
             });
         </script>
     </body>
