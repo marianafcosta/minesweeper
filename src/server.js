@@ -1,4 +1,5 @@
 import express from "express";
+import session from "express-session";
 import http from "http";
 import { Server } from "socket.io";
 import { MongoClient } from "mongodb";
@@ -14,6 +15,26 @@ import {
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "http://localhost:5000" } });
+
+const wrap = (middleware) => (socket, next) =>
+    middleware(socket.request, {}, next);
+
+io.use(
+    wrap(
+        session({
+            secret: "minesweeper",
+            name: "minesweeper",
+            cookie: {
+                maxAge: 1000 * 60 * 60 * 24 * 10, // NOTE: 1 day
+                httpOnly: true,
+                sameSite: "lax", // NOTE: CSRF
+                secure: false, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
+            },
+            saveUninitialized: false,
+            resave: false,
+        })
+    )
+);
 
 const url = "mongodb://localhost:27017";
 const dbName = "minesweeper";
@@ -43,7 +64,10 @@ async function fetchHighScores() {
         .toArray();
 }
 
+app.post("/login", (req, res) => {});
+
 io.on("connection", (socket) => {
+    const session = socket.request.session;
     console.log(`Socket ${socket.id} connected`);
 
     socket.on("disconnect", () => {
