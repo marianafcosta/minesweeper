@@ -1,16 +1,30 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { resolve } from "path";
-import { addFlag, init, uncoverCell, updateGameStatus } from "./logic.js";
+import { MongoClient } from "mongodb";
+
+import {
+    addFlag,
+    gameStatus,
+    init,
+    uncoverCell,
+    updateGameStatus,
+} from "./logic.js";
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "http://localhost:5000" } });
 
-app.get("/", (req, res) => {
-    res.sendFile(resolve("index.html"));
-});
+const url = "mongodb://localhost:27017";
+const dbName = "minesweeper";
+const mongoClient = new MongoClient(url);
+
+async function connectDb() {
+    await mongoClient.connect();
+    return mongoClient.db(dbName);
+}
+
+const db = await connectDb();
 
 io.on("connection", (socket) => {
     console.log(`Socket ${socket.id} connected`);
@@ -26,11 +40,11 @@ io.on("connection", (socket) => {
 
     socket.on("play", ({ row, col, game }) => {
         if (row !== null && col !== null && game) {
-            uncoverCell(row, col, game, true);
-            updateGameStatus(game);
             console.log(
                 `Uncovering cell ${row} ${col} for socket ${socket.id}`
             );
+            uncoverCell(row, col, game, true);
+            updateGameStatus(game);
             socket.emit("play", game);
         }
     });
