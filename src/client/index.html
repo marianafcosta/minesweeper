@@ -10,6 +10,7 @@
     </head>
     <body>
         <h1>Minesweeper</h1>
+        <ul id="high-scores"></ul>
         <p id="status"></p>
         <div class="buttons">
             <button id="send" type="button">Initalize game</button>
@@ -135,14 +136,24 @@
             function updateGame(_game) {
                 console.log("Received initialized game");
                 game = _game;
-                document.getElementById("row").max = game.gridSize - 1;
-                document.getElementById("col").max = game.gridSize - 1;
                 printGame();
-                updateStatus();
+            }
+
+            function updateHighScores(highScores) {
+                const list = document.getElementById("high-scores");
+                list.innerHTML = "";
+
+                highScores.forEach((player) => {
+                    let li = document.createElement("li");
+                    li.innerText = `${player.username}: ${player.highScore.score}`;
+                    list.appendChild(li);
+                });
             }
 
             socket.on("init", (_game) => {
                 updateGame(_game);
+                document.getElementById("row").max = game.gridSize - 1;
+                document.getElementById("col").max = game.gridSize - 1;
                 updateStatus();
             });
 
@@ -152,6 +163,13 @@
 
             socket.on("flag", (_game) => {
                 updateGame(_game);
+            });
+
+            socket.on("end", ({ game, highScores }) => {
+                console.log(highScores);
+                updateGame(game);
+                updateStatus();
+                updateHighScores(highScores);
             });
 
             initButton.addEventListener("click", () => {
