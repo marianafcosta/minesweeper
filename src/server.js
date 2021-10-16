@@ -1,8 +1,11 @@
 import express from "express";
 import session from "express-session";
+import cors from "cors";
 import http from "http";
+import bodyParser from "body-parser";
 import { Server } from "socket.io";
 import { MongoClient } from "mongodb";
+import argon2 from "argon2";
 
 import {
     addFlag,
@@ -13,28 +16,53 @@ import {
 } from "./logic.js";
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "http://localhost:5000" } });
 
-const wrap = (middleware) => (socket, next) =>
-    middleware(socket.request, {}, next);
-
-io.use(
-    wrap(
-        session({
-            secret: "minesweeper",
-            name: "minesweeper",
-            cookie: {
-                maxAge: 1000 * 60 * 60 * 24 * 10, // NOTE: 1 day
-                httpOnly: true,
-                sameSite: "lax", // NOTE: CSRF
-                secure: false, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
-            },
-            saveUninitialized: false,
-            resave: false,
-        })
-    )
+app.use(bodyParser.json());
+app.use(
+    cors({
+        origin: "http://localhost:5000",
+        credentials: true,
+    })
 );
+app.use(
+    session({
+        secret: "minesweeper",
+        name: "minesweeper",
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24 * 10, // NOTE: 10 days
+            // httpOnly: true,
+            // sameSite: "lax", // NOTE: CSRF
+            // secure: false, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
+        },
+        saveUninitialized: true,
+        resave: false,
+    })
+);
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: { origin: "http://localhost:5000", credentials: true },
+});
+
+// const wrap = (middleware) => (socket, next) =>
+//     middleware(socket.request, {}, next);
+
+// io.use(
+//     wrap(
+//         session({
+//             secret: "minesweeper",
+//             name: "minesweeper",
+//             cookie: {
+//                 maxAge: 1000 * 60 * 60 * 24 * 10, // NOTE: 10 days
+//                 // httpOnly: true,
+//                 // sameSite: "lax", // NOTE: CSRF
+//                 // secure: false, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
+//             },
+//             saveUninitialized: true,
+//             resave: false,
+//         })
+//     )
+// );
 
 const url = "mongodb://localhost:27017";
 const dbName = "minesweeper";
@@ -46,6 +74,13 @@ async function connectDb() {
 }
 
 const db = await connectDb();
+
+async function insertPlayer(username, password) {
+    db.collection("players").insertOne({
+        username,
+        password: await argon2.hash(password),
+    });
+}
 
 async function updateHighScore(username, score) {
     db.collection("players").updateOne(
@@ -64,10 +99,12 @@ async function fetchHighScores() {
         .toArray();
 }
 
-app.post("/login", (req, res) => {});
+// TODO: Remove this
+// insertPlayer("test10", "test10");
 
 io.on("connection", (socket) => {
     const session = socket.request.session;
+    console.log(session);
     console.log(`Socket ${socket.id} connected`);
 
     socket.on("disconnect", () => {
@@ -80,6 +117,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("play", async ({ row, col, game }) => {
+        console.log(session);
         if (row !== null && col !== null && game) {
             console.log(
                 `Uncovering cell ${row} ${col} for socket ${socket.id}`
@@ -117,6 +155,30 @@ io.on("connection", (socket) => {
             socket.emit("flag", game);
         }
     });
+});
+
+app.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+
+    const user = await db.collection("players").findOne({ username });
+
+    if (!user) {
+        res.sendStatus(404);
+        return;
+    }
+
+    const valid = await argon2.verify(user.password, password);
+    if (!valid) {
+        res.sendStatus(401);
+        return;
+    }
+
+    if (req.session.userId) {
+        res.sendStatus(304);
+    } else {
+        req.session.userId = user._id;
+        res.sendStatus(200);
+    }
 });
 
 server.listen(3000, () => {

@@ -10,6 +10,13 @@
     </head>
     <body>
         <h1>Minesweeper</h1>
+        <form id="login" class="login-form">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required />
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required />
+            <input type="submit" value="Login" />
+        </form>
         <ul id="high-scores"></ul>
         <p id="status"></p>
         <div class="buttons">
@@ -60,6 +67,7 @@
             const socket = io("ws://localhost:3000");
             const initButton = document.getElementById("send");
             const playForm = document.getElementById("play");
+            const login = document.getElementById("login");
             let game;
 
             const gameStatus = {
@@ -203,6 +211,22 @@
                     const flag = document.getElementById("flag").checked;
                     socket.emit(flag ? "flag" : "play", { row, col, game });
                 }
+            });
+
+            login.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const res = await fetch("http://localhost:3000/login", {
+                    method: "POST", // *GET, POST, PUT, DELETE, etc.
+                    mode: "cors", // no-cors, *cors, same-origin
+                    credentials: "include", // include, *same-origin, omit
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        username: "test10",
+                        password: "test10",
+                    }),
+                });
             });
         </script>
     </body>

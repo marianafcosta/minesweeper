@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "cli": "node src/index.js",
-        "server": "node server.js",
+        "server": "nodemon server.js",
         "client": "serve client",
         "dev": "concurrently \"npm run server\" \"npm run client\""
     },
@@ -17,9 +17,15 @@
     "author": "Mariana Costa",
     "license": "MIT",
     "dependencies": {
+        "argon2": "^0.28.2",
+        "body-parser": "^1.19.0",
+        "cors": "^2.8.5",
         "express": "^4.17.1",
         "express-session": "^1.17.2",
         "mongodb": "^4.1.3",
         "socket.io": "^4.2.0"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.13"
     }
 }
