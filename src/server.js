@@ -4,7 +4,7 @@ import cors from "cors";
 import http from "http";
 import bodyParser from "body-parser";
 import { Server } from "socket.io";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import argon2 from "argon2";
 
 import {
@@ -68,11 +68,18 @@ async function insertPlayer(username, password) {
     });
 }
 
-async function updateHighScore(username, score) {
-    db.collection("players").updateOne(
-        { username },
-        { $max: { highScore: score } }
-    );
+async function updateHighScore(userId, score) {
+    // TODO: Just one query
+    await db
+        .collection("players")
+        .updateOne({ _id: ObjectId(userId) }, { $max: { highScore: score } });
+
+    await db
+        .collection("players")
+        .updateOne(
+            { _id: ObjectId(userId), highScore: { $exists: false } },
+            { $set: { highScore: score } }
+        );
 }
 
 async function fetchHighScores() {
@@ -111,7 +118,7 @@ io.on("connection", (socket) => {
 
             if (game.status !== gameStatus.ONGOING) {
                 if (game.status === gameStatus.WON) {
-                    await updateHighScore("test2", {
+                    await updateHighScore(session.userId, {
                         score: game.score,
                         timestamp: Date.now(),
                     });
