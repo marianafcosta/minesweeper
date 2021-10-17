@@ -17,6 +17,7 @@
             <input type="password" id="password" name="password" required />
             <input type="submit" value="Login" />
         </form>
+        <button id="logout">Logout</button>
         <ul id="high-scores"></ul>
         <p id="status"></p>
         <div class="buttons">
@@ -68,6 +69,7 @@
             const initButton = document.getElementById("send");
             const playForm = document.getElementById("play");
             const login = document.getElementById("login");
+            const logout = document.getElementById("logout");
             let game;
 
             const gameStatus = {
@@ -230,6 +232,15 @@
                         username: document.getElementById("username").value,
                         password: document.getElementById("password").value,
                     }),
+                });
+            });
+
+            logout.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const res = await fetch("http://localhost:3000/logout", {
+                    method: "POST",
+                    mode: "cors", // no-cors, *cors, same-origin
+                    credentials: "include", // include, *same-origin, omit
                 });
             });
         </script>

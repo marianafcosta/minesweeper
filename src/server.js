@@ -34,7 +34,7 @@ const sessionMiddleware = session({
         // sameSite: "lax", // NOTE: CSRF
         // secure: false, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
     },
-    saveUninitialized: true,
+    saveUninitialized: false,
     resave: false,
 });
 
@@ -125,7 +125,6 @@ io.on("connection", (socket) => {
                 }
 
                 let highScores = await fetchHighScores();
-                console.log(highScores);
 
                 socket.emit("end", {
                     game,
@@ -170,6 +169,17 @@ app.post("/login", async (req, res) => {
         req.session.userId = user._id;
         res.sendStatus(200);
     }
+});
+
+app.post("/logout", async (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            res.sendStatus(500);
+        } else {
+            res.clearCookie("minesweeper");
+            res.sendStatus(200);
+        }
+    });
 });
 
 server.listen(3000, () => {
