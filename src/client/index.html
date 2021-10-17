@@ -64,7 +64,8 @@
             crossorigin="anonymous"
         ></script>
         <script>
-            const socket = io("ws://localhost:3000");
+            // const socket = io("ws://localhost:3000", { withCredentials: true });
+            let socket;
             const initButton = document.getElementById("send");
             const playForm = document.getElementById("play");
             const login = document.getElementById("login");
@@ -82,6 +83,31 @@
                 EMPTY: " ",
                 FLAG: "F",
             };
+
+            function initSocket() {
+                socket.on("init", (_game) => {
+                    updateGame(_game);
+                    document.getElementById("row").max = game.gridSize - 1;
+                    document.getElementById("col").max = game.gridSize - 1;
+                    updateStatus();
+                });
+
+                socket.on("play", (_game) => {
+                    updateGame(_game);
+                });
+
+                socket.on("flag", (_game) => {
+                    updateGame(_game);
+                });
+
+                socket.on("end", ({ game, highScores }) => {
+                    console.log(highScores);
+                    updateGame(game);
+                    updateStatus();
+                    updateHighScores(highScores);
+                    socket.emit("disconnect");
+                });
+            }
 
             function drawCell(cell, maxCellDigits, showBombs) {
                 let displayText;
@@ -158,28 +184,6 @@
                 });
             }
 
-            socket.on("init", (_game) => {
-                updateGame(_game);
-                document.getElementById("row").max = game.gridSize - 1;
-                document.getElementById("col").max = game.gridSize - 1;
-                updateStatus();
-            });
-
-            socket.on("play", (_game) => {
-                updateGame(_game);
-            });
-
-            socket.on("flag", (_game) => {
-                updateGame(_game);
-            });
-
-            socket.on("end", ({ game, highScores }) => {
-                console.log(highScores);
-                updateGame(game);
-                updateStatus();
-                updateHighScores(highScores);
-            });
-
             initButton.addEventListener("click", () => {
                 console.log("Request game initialization");
                 const gridSize = parseInt(
@@ -190,6 +194,8 @@
                     document.getElementById("num-bombs").value,
                     10
                 );
+                socket = io("ws://localhost:3000", { withCredentials: true });
+                initSocket();
                 socket.emit("init", {
                     gridSize: gridSize || 16,
                     numBombs: numBombs || 32,

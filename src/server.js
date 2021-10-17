@@ -24,45 +24,31 @@ app.use(
         credentials: true,
     })
 );
-app.use(
-    session({
-        secret: "minesweeper",
-        name: "minesweeper",
-        cookie: {
-            maxAge: 1000 * 60 * 60 * 24 * 10, // NOTE: 10 days
-            // httpOnly: true,
-            // sameSite: "lax", // NOTE: CSRF
-            // secure: false, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
-        },
-        saveUninitialized: true,
-        resave: false,
-    })
-);
+
+const sessionMiddleware = session({
+    secret: "minesweeper",
+    name: "minesweeper",
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 10, // NOTE: 10 days
+        // httpOnly: true,
+        // sameSite: "lax", // NOTE: CSRF
+        // secure: false, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
+    },
+    saveUninitialized: true,
+    resave: false,
+});
+
+app.use(sessionMiddleware);
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: { origin: "http://localhost:5000", credentials: true },
 });
 
-// const wrap = (middleware) => (socket, next) =>
-//     middleware(socket.request, {}, next);
+const wrap = (middleware) => (socket, next) =>
+    middleware(socket.request, {}, next);
 
-// io.use(
-//     wrap(
-//         session({
-//             secret: "minesweeper",
-//             name: "minesweeper",
-//             cookie: {
-//                 maxAge: 1000 * 60 * 60 * 24 * 10, // NOTE: 10 days
-//                 // httpOnly: true,
-//                 // sameSite: "lax", // NOTE: CSRF
-//                 // secure: false, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
-//             },
-//             saveUninitialized: true,
-//             resave: false,
-//         })
-//     )
-// );
+io.use(wrap(sessionMiddleware));
 
 const url = "mongodb://localhost:27017";
 const dbName = "minesweeper";
@@ -104,8 +90,7 @@ async function fetchHighScores() {
 
 io.on("connection", (socket) => {
     const session = socket.request.session;
-    console.log(session);
-    console.log(`Socket ${socket.id} connected`);
+    console.log("socket session ", socket.request.session);
 
     socket.on("disconnect", () => {
         console.log(`Socket ${socket.id} disconnected`);
@@ -117,7 +102,6 @@ io.on("connection", (socket) => {
     });
 
     socket.on("play", async ({ row, col, game }) => {
-        console.log(session);
         if (row !== null && col !== null && game) {
             console.log(
                 `Uncovering cell ${row} ${col} for socket ${socket.id}`
