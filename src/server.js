@@ -163,12 +163,8 @@ app.post("/login", async (req, res) => {
         return;
     }
 
-    if (req.session.userId) {
-        res.sendStatus(304);
-    } else {
-        req.session.userId = user._id;
-        res.sendStatus(200);
-    }
+    req.session.userId = user._id;
+    res.sendStatus(200);
 });
 
 app.post("/logout", async (req, res) => {
