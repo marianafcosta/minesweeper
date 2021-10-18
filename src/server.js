@@ -4,7 +4,6 @@ import cors from "cors";
 import http from "http";
 import bodyParser from "body-parser";
 import { Server } from "socket.io";
-import { MongoClient, ObjectId } from "mongodb";
 import argon2 from "argon2";
 
 import {
@@ -14,6 +13,7 @@ import {
     uncoverCell,
     updateGameStatus,
 } from "./logic.js";
+import { DB } from "./db.js";
 
 const app = express();
 
@@ -50,50 +50,8 @@ const wrap = (middleware) => (socket, next) =>
 
 io.use(wrap(sessionMiddleware));
 
-const url = "mongodb://localhost:27017";
-const dbName = "minesweeper";
-const mongoClient = new MongoClient(url);
-
-async function connectDb() {
-    await mongoClient.connect();
-    return mongoClient.db(dbName);
-}
-
-const db = await connectDb();
-
-async function insertPlayer(username, password) {
-    db.collection("players").insertOne({
-        username,
-        password: await argon2.hash(password),
-    });
-}
-
-async function updateHighScore(userId, score) {
-    // TODO: Just one query
-    await db
-        .collection("players")
-        .updateOne({ _id: ObjectId(userId) }, { $min: { highScore: score } });
-
-    await db
-        .collection("players")
-        .updateOne(
-            { _id: ObjectId(userId), highScore: { $exists: false } },
-            { $set: { highScore: score } }
-        );
-}
-
-async function fetchHighScores() {
-    return db
-        .collection("players")
-        .find()
-        .project({ password: 0, _id: 0 })
-        .sort({ "highScore.score": 1, "highScore.timestamp": -1 })
-        .limit(10)
-        .toArray();
-}
-
-// TODO: Remove this
-// insertPlayer("test5", "test5");
+const db = new DB();
+await db.connect();
 
 io.on("connection", (socket) => {
     const session = socket.request.session;
@@ -118,13 +76,13 @@ io.on("connection", (socket) => {
 
             if (game.status !== gameStatus.ONGOING) {
                 if (game.status === gameStatus.WON) {
-                    await updateHighScore(session.userId, {
+                    await db.updateHighScore(session.userId, {
                         score: game.score,
                         timestamp: Date.now(),
                     });
                 }
 
-                let highScores = await fetchHighScores();
+                let highScores = await db.fetchHighScores();
 
                 socket.emit("end", {
                     game,
@@ -150,7 +108,7 @@ io.on("connection", (socket) => {
 app.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
-    const user = await db.collection("players").findOne({ username });
+    const user = await db.findPlayer(username);
 
     if (!user) {
         res.sendStatus(404);
