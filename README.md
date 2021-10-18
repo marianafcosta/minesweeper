@@ -4,7 +4,7 @@ My goal with this project is to work on my full-stack skills, starting with the 
 
 -   [x] CLI (a minesweeper clone)
 -   [x] Server (send commands for the server to process and receive game states with the changes applied)
--   [ ] DB (persistance; store a player's session)
+-   [x] DB (persistance; store high scores)
 -   [ ] Frontend (a website to play the game)
 -   [ ] Deployment
 
@@ -19,6 +19,9 @@ cd src
 npm run cli
 
 # Server
+npm run server
+
+# Concurrent
 npm run dev
 
 ```
