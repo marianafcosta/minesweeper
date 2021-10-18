@@ -72,7 +72,7 @@ async function updateHighScore(userId, score) {
     // TODO: Just one query
     await db
         .collection("players")
-        .updateOne({ _id: ObjectId(userId) }, { $max: { highScore: score } });
+        .updateOne({ _id: ObjectId(userId) }, { $min: { highScore: score } });
 
     await db
         .collection("players")
@@ -93,7 +93,7 @@ async function fetchHighScores() {
 }
 
 // TODO: Remove this
-// insertPlayer("test10", "test10");
+// insertPlayer("test5", "test5");
 
 io.on("connection", (socket) => {
     const session = socket.request.session;
