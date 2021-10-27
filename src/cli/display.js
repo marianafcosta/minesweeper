@@ -13,6 +13,13 @@ export const messageType = {
     INFO: "white",
 };
 
+const cellIcons = {
+    BOMB: "B",
+    HIDDEN: ".",
+    EMPTY: " ",
+    FLAG: "F",
+};
+
 // NOTE: https://gist.github.com/timneutkens/f2933558b8739bbf09104fb27c5c9664
 function clearScreen() {
     const blank = "\n".repeat(process.stdout.rows);
@@ -39,14 +46,14 @@ function colorText(text, color) {
 
 function drawCell(cell, maxCellDigits, showBombs) {
     let displayText;
-    if (cell.status === cellStatus.BOMB) {
-        displayText = colorText(cell.status, colors.red);
-    } else if (cell.status === cellStatus.FLAG) {
-        displayText = colorText(cell.status, colors.green);
+    if (cellIcons[cell.status] === cellStatus.BOMB) {
+        displayText = colorText(cellIcons[cell.status], colors.red);
+    } else if (cellIcons[cell.status] === cellStatus.FLAG) {
+        displayText = colorText(cellIcons[cell.status], colors.green);
     } else if (showBombs && cell.bomb) {
         displayText = colorText(cellStatus.BOMB, colors.red);
     } else {
-        displayText = cell.status;
+        displayText = cellIcons[cell.status];
     }
 
     process.stdout.write(`|${displayText}${" ".repeat(maxCellDigits - 1)}|`);

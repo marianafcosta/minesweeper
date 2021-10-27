@@ -11,60 +11,46 @@
     };
 
     const cellStatus = {
+        BOMB: "BOMB",
+        HIDDEN: "HIDDEN",
+        EMPTY: "EMPTY",
+        FLAG: "FLAG",
+    };
+
+    const cellIcons = {
         BOMB: "B",
-        HIDDEN: ".",
-        EMPTY: " ",
+        HIDDEN: "",
+        EMPTY: "",
         FLAG: "F",
     };
 
-    // TODO: Generalize drawing functions in logic
-    function drawCell(cell, maxCellDigits, showBombs) {
-        let displayText;
+    function cellColor(showBombs, cell) {
         if (showBombs && cell.bomb) {
-            displayText = cellStatus.BOMB;
+            return "cell-bomb";
         } else {
-            displayText = cell.status;
-        }
-
-        return `|${displayText}${" ".repeat(maxCellDigits - 1)}|`;
-    }
-
-    function printGrid(showBombs) {
-        let display = "";
-        display += `|${" ".repeat(game.maxCellDigits)}|`;
-
-        for (let i = 0; i < game.gridSize; i++) {
-            display += `|${i}${" ".repeat(
-                game.maxCellDigits - (Math.floor(i / 10) + 1)
-            )}|`;
-        }
-
-        display += "\n";
-
-        for (let i = 0; i < game.gridSize; i++) {
-            display += `|${i}${" ".repeat(
-                game.maxCellDigits - (Math.floor(i / 10) + 1)
-            )}|`;
-
-            for (let j = 0; j < game.gridSize; j++) {
-                display += drawCell(
-                    game.grid[i][j],
-                    game.maxCellDigits,
-                    showBombs
-                );
+            switch (cell.status) {
+                case cellStatus.BOMB:
+                    return "cell-bomb";
+                case cellStatus.HIDDEN:
+                    return "cell-hidden";
+                case cellStatus.FLAG:
+                    return "cell-flag";
+                case cellStatus.EMPTY:
+                    return "cell-empty";
+                default:
+                    return "";
             }
-            display += "\n";
         }
-
-        display += "\n";
-
-        return display;
     }
 
-    function printGame() {
-        document.getElementById("grid").textContent = printGrid(
-            game.status !== gameStatus.ONGOING
-        );
+    function cellContent(showBombs, cell) {
+        if (showBombs && cell.bomb) {
+            return cellIcons[cellStatus.BOMB];
+        } else {
+            return cellIcons[cell.status] !== undefined
+                ? cellIcons[cell.status]
+                : cell.status;
+        }
     }
 
     function updateStatus() {
@@ -79,7 +65,6 @@
     function updateGame(_game) {
         console.log("Received initialized game");
         game = _game;
-        printGame();
     }
 
     function updateHighScores(highScores) {
@@ -113,7 +98,6 @@
             updateGame(game);
             updateStatus();
             updateHighScores(highScores);
-            // socket.emit("disconnect");
             socket.disconnect();
         });
     }
@@ -171,39 +155,186 @@
 </script>
 
 <main>
-    <h1>Minesweeper</h1>
-    <form on:submit|preventDefault={login} id="login">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required />
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required />
-        <input type="submit" value="Login" />
-    </form>
-    <button on:click={logout} id="logout">Logout</button>
-    <ul id="high-scores" />
-    <p id="status" />
-    <div class="buttons">
-        <button on:click={initializeGame} id="send" type="button"
-            >Initalize game</button
-        >
+    <header><h1>Minesweeper</h1></header>
+    <div class="content">
+        <div class="login-container">
+            <h3>Login to save your scores!</h3>
+            <form on:submit|preventDefault={login} id="login">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required />
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required />
+                <div class="login-actions">
+                    <input type="submit" value="Login" />
+                    <input
+                        type="button"
+                        on:click={logout}
+                        id="logout"
+                        value="Logout"
+                    />
+                </div>
+            </form>
+        </div>
+        <div class="game-container">
+            <h3 id="status" />
+            <form on:submit|preventDefault={play} id="play" class="play">
+                <div>
+                    <label for="row">Row</label>
+                    <input
+                        type="number"
+                        id="row"
+                        name="row"
+                        min="0"
+                        max="15"
+                        required
+                    />
+                </div>
+                <div>
+                    <label for="col">Column</label>
+                    <input
+                        type="number"
+                        id="col"
+                        name="col"
+                        min="0"
+                        max="15"
+                        required
+                    />
+                </div>
+                <div>
+                    <label for="flag">Flag?</label>
+                    <input type="checkbox" id="flag" name="flag" />
+                </div>
+                <input type="submit" value="Play" />
+            </form>
+            {#if game}
+                <div
+                    style={`grid-template-columns: repeat(${game.gridSize}, 1fr);`}
+                    class="new-grid"
+                >
+                    {#each game.grid as row}
+                        {#each row as cell}
+                            <div
+                                class={`cell ${cellColor(
+                                    game.status !== gameStatus.ONGOING,
+                                    cell
+                                )}`}
+                            >
+                                {cellContent(
+                                    game.status !== gameStatus.ONGOING,
+                                    cell
+                                )}
+                            </div>
+                        {/each}
+                    {/each}
+                </div>
+            {/if}
+        </div>
+        <div class="setup-container">
+            <h3>Setup a new game</h3>
+            <form id="init" class="init">
+                <label for="grid-size">Grid size</label>
+                <input
+                    type="number"
+                    id="grid-size"
+                    name="grid-size"
+                    min="1"
+                    max="16"
+                />
+                <label for="num-bombs">Number of bombs</label>
+                <input type="number" id="num-bombs" name="num-bombs" min="0" />
+            </form>
+            <div class="buttons">
+                <button on:click={initializeGame} id="send" type="button"
+                    >Initalize game</button
+                >
+            </div>
+        </div>
+        <div class="highscores-container">
+            <h3>High scores</h3>
+            <ul id="high-scores" />
+        </div>
     </div>
-    <form id="init" class="init">
-        <label for="grid-size">Grid size</label>
-        <input type="number" id="grid-size" name="grid-size" min="1" max="16" />
-        <label for="num-bombs">Number of bombs</label>
-        <input type="number" id="num-bombs" name="num-bombs" min="0" />
-    </form>
-    <form on:submit|preventDefault={play} id="play" class="play">
-        <label for="row">Row</label>
-        <input type="number" id="row" name="row" min="0" max="15" required />
-        <label for="col">Column</label>
-        <input type="number" id="col" name="col" min="0" max="15" required />
-        <label for="flag">Flag?</label>
-        <input type="checkbox" id="flag" name="flag" />
-        <input type="submit" value="Play" />
-    </form>
-    <pre><code id="grid"></code></pre>
 </main>
 
 <style>
+    main {
+        padding: 1em;
+        max-width: 800px;
+        margin: auto;
+    }
+
+    .content {
+        display: grid;
+        gap: 16px;
+        grid-template-areas:
+            "game login"
+            "game setup"
+            "highscores highscores";
+    }
+
+    .content > * {
+        background-color: beige;
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .login-container {
+        grid-area: login;
+    }
+
+    .game-container {
+        grid-area: game;
+    }
+
+    .highscore-container {
+        grid-area: highscores;
+    }
+
+    .setup-container {
+        grid-area: setup;
+    }
+    .cell {
+        aspect-ratio: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid black;
+    }
+    .cell-hidden {
+        background-color: grey;
+    }
+    .cell-bomb {
+        background-color: red;
+    }
+    .cell-flag {
+        background-color: green;
+    }
+    .cell-empty {
+        background-color: white;
+    }
+
+    .new-grid {
+        display: grid;
+        grid-template-columns: repeat(16, 1fr);
+        gap: 8px;
+        width: 500px;
+    }
+
+    #login {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #play {
+        display: flex;
+        flex-direction: row;
+    }
+
+    #play > *:not(:first-child) {
+        margin-left: 16px;
+    }
+
+    .login-actions {
+        margin: auto;
+    }
 </style>

@@ -6,10 +6,10 @@ export const gameStatus = {
 
 // TODO: It can also contain a number encoding the number of nearby bombs
 export const cellStatus = {
-    BOMB: "B",
-    HIDDEN: ".",
-    EMPTY: " ",
-    FLAG: "F",
+    BOMB: "BOMB",
+    HIDDEN: "HIDDEN",
+    EMPTY: "EMPTY",
+    FLAG: "FLAG",
 };
 
 function isCellValid(row, col, game) {
