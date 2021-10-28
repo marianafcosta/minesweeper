@@ -286,7 +286,7 @@
         grid-area: game;
     }
 
-    .highscore-container {
+    .highscores-container {
         grid-area: highscores;
     }
 
