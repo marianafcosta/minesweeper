@@ -207,11 +207,22 @@
                 <input type="submit" value="Play" />
             </form>
             {#if game}
+                <!-- NOTE: +1 for the row number indicator -->
                 <div
-                    style={`grid-template-columns: repeat(${game.gridSize}, 1fr);`}
+                    style={`grid-template-columns: repeat(${
+                        game.gridSize + 1
+                    }, 1fr);`}
                     class="new-grid"
                 >
-                    {#each game.grid as row}
+                    {#each Array(game.gridSize + 1) as _, colIndex}
+                        {#if colIndex === 0}
+                            <div />
+                        {:else}
+                            <div>{colIndex - 1}</div>
+                        {/if}
+                    {/each}
+                    {#each game.grid as row, rowIndex}
+                        <div>{rowIndex}</div>
                         {#each row as cell}
                             <div
                                 class={`cell ${cellColor(
