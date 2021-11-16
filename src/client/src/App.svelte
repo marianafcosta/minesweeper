@@ -1,8 +1,10 @@
 <script>
     import { io } from "socket.io-client";
+    import { onMount } from "svelte";
 
     let socket;
     let game;
+    let currentUser;
 
     const gameStatus = {
         WON: "won",
@@ -131,7 +133,10 @@
     }
 
     async function login() {
-        await fetch("http://localhost:3000/login", {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        const response = await fetch("http://localhost:3000/login", {
             method: "POST", // *GET, POST, PUT, DELETE, etc.
             mode: "cors", // no-cors, *cors, same-origin
             credentials: "include", // include, *same-origin, omit
@@ -139,10 +144,13 @@
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                username: document.getElementById("username").value,
-                password: document.getElementById("password").value,
+                username,
+                password,
             }),
         });
+        if (response.status === 200) {
+            currentUser = username;
+        }
     }
 
     async function logout() {
@@ -152,13 +160,31 @@
             credentials: "include", // include, *same-origin, omit
         });
     }
+
+    async function fetchCurrentUser() {
+        const response = await fetch("http://localhost:3000/me", {
+            credentials: "include",
+        });
+
+        if (response.status === 200) {
+            currentUser = (await response.json()).username;
+        }
+    }
+
+    onMount(async () => {
+        fetchCurrentUser();
+    });
 </script>
 
 <main>
     <header><h1>Minesweeper</h1></header>
     <div class="content">
         <div class="login-container">
-            <h3>Login to save your scores!</h3>
+            <h3>
+                {currentUser
+                    ? `Hello, ${currentUser}`
+                    : "Login to save your scores!"}
+            </h3>
             <form on:submit|preventDefault={login} id="login">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required />

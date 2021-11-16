@@ -105,6 +105,18 @@ io.on("connection", (socket) => {
     });
 });
 
+app.get("/me", async (req, res) => {
+    const username = req.session.username;
+    console.log("username", username);
+
+    if (username) {
+        res.status(200);
+        res.send(JSON.stringify({ username }));
+    } else {
+        res.sendStatus(404);
+    }
+});
+
 app.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
@@ -121,7 +133,7 @@ app.post("/login", async (req, res) => {
         return;
     }
 
-    req.session.userId = user._id;
+    req.session.username = user.username;
     res.sendStatus(200);
 });
 
