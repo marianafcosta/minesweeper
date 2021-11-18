@@ -55,15 +55,6 @@
         }
     }
 
-    function updateStatus() {
-        const status = document.getElementById("status");
-        if (game.status !== gameStatus.ONGOING) {
-            status.innerText = `You ${game.status}!`;
-        } else {
-            status.innerText = "";
-        }
-    }
-
     function updateGame(_game) {
         console.log("Received initialized game");
         game = _game;
@@ -85,7 +76,6 @@
             updateGame(_game);
             document.getElementById("row").max = game.gridSize - 1;
             document.getElementById("col").max = game.gridSize - 1;
-            updateStatus();
         });
 
         socket.on("play", (_game) => {
@@ -98,7 +88,6 @@
 
         socket.on("end", ({ game, highScores }) => {
             updateGame(game);
-            updateStatus();
             updateHighScores(highScores);
             socket.disconnect();
         });
@@ -202,7 +191,10 @@
             </form>
         </div>
         <div class="game-container">
-            <h3 id="status" />
+            {#if game && game.status !== gameStatus.ONGOING}
+                <h3 id="status">{`You ${game.status}!`}</h3>
+                <h4 id="score">{`Score: ${game.score}`}</h4>
+            {/if}
             <form on:submit|preventDefault={play} id="play" class="play">
                 <div>
                     <label for="row">Row</label>
