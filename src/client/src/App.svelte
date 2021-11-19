@@ -6,6 +6,10 @@
     let game;
     let currentUser;
 
+    const validGridSizes = [8, 16];
+    let selectedGridSize;
+    let selectedNumBombs;
+
     const gameStatus = {
         WON: "won",
         LOST: "lost",
@@ -95,10 +99,7 @@
 
     function initializeGame() {
         console.log("Request game initialization");
-        const gridSize = parseInt(
-            document.getElementById("grid-size").value,
-            10
-        );
+        const gridSize = parseInt(selectedGridSize);
         const numBombs = parseInt(
             document.getElementById("num-bombs").value,
             10
@@ -260,23 +261,29 @@
         </div>
         <div class="setup-container">
             <h3>Setup a new game</h3>
-            <form id="init" class="init">
+            <form
+                id="init"
+                class="init"
+                on:submit|preventDefault={initializeGame}
+            >
                 <label for="grid-size">Grid size</label>
+                <select bind:value={selectedGridSize}>
+                    {#each validGridSizes as size}
+                        <option value={size}>
+                            {size}
+                        </option>
+                    {/each}
+                </select>
+                <label for="num-bombs">Number of bombs</label>
                 <input
                     type="number"
-                    id="grid-size"
-                    name="grid-size"
-                    min="1"
-                    max="16"
+                    bind:value={selectedNumBombs}
+                    id="num-bombs"
+                    name="num-bombs"
+                    min="0"
                 />
-                <label for="num-bombs">Number of bombs</label>
-                <input type="number" id="num-bombs" name="num-bombs" min="0" />
+                <button type="submit"> Initialize Game </button>
             </form>
-            <div class="buttons">
-                <button on:click={initializeGame} id="send" type="button"
-                    >Initalize game</button
-                >
-            </div>
         </div>
         <div class="highscores-container">
             <h3>High scores</h3>

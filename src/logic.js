@@ -12,15 +12,28 @@ export const cellStatus = {
     FLAG: "FLAG",
 };
 
+export const validGridSizes = [8, 16];
+
 function isCellValid(row, col, game) {
     return row < game.gridSize && col < game.gridSize && row >= 0 && col >= 0;
 }
 
+function isGridSizeValid(size) {
+    for (const validSize of validGridSizes) {
+        if (size === validSize) {
+            return size;
+        }
+    }
+    // TODO: Could return the closest valid size to the one specified
+    return validGridSizes[validGridSizes.length - 1];
+}
+
 // TODO: Score isn't the best name, because the lower the time spent, the better
 function init(gridSize, numBombs) {
+    const validatedGridSize = isGridSizeValid(gridSize);
     const game = {
         grid: [],
-        gridSize,
+        gridSize: validatedGridSize,
         numBombs,
         maxCellDigits: Math.floor(gridSize / 10) + 1,
         status: gameStatus.ONGOING,
@@ -30,16 +43,16 @@ function init(gridSize, numBombs) {
     };
 
     // TODO: Instead of looping through the array again to add the bombs, create an array (n = numBombs) of random grid positions and if the current [i,j] matches, add bomb
-    for (let i = 0; i < gridSize; i++) {
+    for (let i = 0; i < validatedGridSize; i++) {
         game.grid.push([]);
-        for (let j = 0; j < gridSize; j++) {
+        for (let j = 0; j < validatedGridSize; j++) {
             game.grid[i].push({ status: cellStatus.HIDDEN, bomb: false });
         }
     }
 
     for (let i = 0; i < numBombs; i++) {
-        game.grid[Math.floor(Math.random() * gridSize)][
-            Math.floor(Math.random() * gridSize)
+        game.grid[Math.floor(Math.random() * validatedGridSize)][
+            Math.floor(Math.random() * validatedGridSize)
         ].bomb = true;
     }
 
