@@ -7,8 +7,15 @@
     let currentUser;
 
     const validGridSizes = [8, 16];
-    let selectedGridSize;
+    let selectedGridSize = 8;
+    let maxGridSize = selectedGridSize;
     let selectedNumBombs;
+    let highScores = [];
+    let row;
+    let col;
+    let flag;
+    let username;
+    let password;
 
     const gameStatus = {
         WON: "won",
@@ -64,22 +71,10 @@
         game = _game;
     }
 
-    function updateHighScores(highScores) {
-        const list = document.getElementById("high-scores");
-        list.innerHTML = "";
-
-        highScores.forEach((player) => {
-            let li = document.createElement("li");
-            li.innerText = `${player.username}: ${player.highScore.score}`;
-            list.appendChild(li);
-        });
-    }
-
     function initSocket() {
         socket.on("init", (_game) => {
             updateGame(_game);
-            document.getElementById("row").max = game.gridSize - 1;
-            document.getElementById("col").max = game.gridSize - 1;
+            maxGridSize = game.gridSize - 1;
         });
 
         socket.on("play", (_game) => {
@@ -90,9 +85,9 @@
             updateGame(_game);
         });
 
-        socket.on("end", ({ game, highScores }) => {
+        socket.on("end", ({ game, highScores: _highScores }) => {
             updateGame(game);
-            updateHighScores(highScores);
+            highScores = _highScores;
             socket.disconnect();
         });
     }
@@ -100,10 +95,7 @@
     function initializeGame() {
         console.log("Request game initialization");
         const gridSize = parseInt(selectedGridSize);
-        const numBombs = parseInt(
-            document.getElementById("num-bombs").value,
-            10
-        );
+        const numBombs = parseInt(selectedNumBombs);
         socket = io("ws://localhost:3000", { withCredentials: true });
         initSocket();
         socket.emit("init", {
@@ -115,17 +107,11 @@
     function play() {
         if (game.status === gameStatus.ONGOING) {
             console.log("Playing");
-            const row = parseInt(document.getElementById("row").value, 10);
-            const col = parseInt(document.getElementById("col").value, 10);
-            const flag = document.getElementById("flag").checked;
             socket.emit(flag ? "flag" : "play", { row, col, game });
         }
     }
 
     async function login() {
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-
         const response = await fetch("http://localhost:3000/login", {
             method: "POST", // *GET, POST, PUT, DELETE, etc.
             mode: "cors", // no-cors, *cors, same-origin
@@ -177,9 +163,21 @@
             </h3>
             <form on:submit|preventDefault={login} id="login">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required />
+                <input
+                    bind:value={username}
+                    type="text"
+                    id="username"
+                    name="username"
+                    required
+                />
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required />
+                <input
+                    bind:value={password}
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                />
                 <div class="login-actions">
                     <input type="submit" value="Login" />
                     <input
@@ -204,7 +202,8 @@
                         id="row"
                         name="row"
                         min="0"
-                        max="15"
+                        bind:value={row}
+                        max={maxGridSize}
                         required
                     />
                 </div>
@@ -215,13 +214,19 @@
                         id="col"
                         name="col"
                         min="0"
-                        max="15"
+                        bind:value={col}
+                        max={maxGridSize}
                         required
                     />
                 </div>
                 <div>
                     <label for="flag">Flag?</label>
-                    <input type="checkbox" id="flag" name="flag" />
+                    <input
+                        type="checkbox"
+                        id="flag"
+                        name="flag"
+                        bind:checked={flag}
+                    />
                 </div>
                 <input type="submit" value="Play" />
             </form>
@@ -287,7 +292,11 @@
         </div>
         <div class="highscores-container">
             <h3>High scores</h3>
-            <ul id="high-scores" />
+            <ul id="high-scores">
+                {#each highScores as value}
+                    <li>{`${value.username}: ${value.highScore.score}`}</li>
+                {/each}
+            </ul>
         </div>
     </div>
 </main>
