@@ -1,6 +1,7 @@
 <script>
     import { io } from "socket.io-client";
     import { onMount } from "svelte";
+    import { prevent_default } from "svelte/internal";
 
     let socket;
     let game;
@@ -11,9 +12,9 @@
     let maxGridSize = selectedGridSize;
     let selectedNumBombs;
     let highScores = [];
-    let row;
-    let col;
-    let flag;
+    // let row;
+    // let col;
+    // let flag;
     let username;
     let password;
 
@@ -104,7 +105,7 @@
         });
     }
 
-    function play() {
+    function play(row, col, flag) {
         if (game.status === gameStatus.ONGOING) {
             console.log("Playing");
             socket.emit(flag ? "flag" : "play", { row, col, game });
@@ -194,7 +195,7 @@
                 <h3 id="status">{`You ${game.status}!`}</h3>
                 <h4 id="score">{`Score: ${game.score}`}</h4>
             {/if}
-            <form on:submit|preventDefault={play} id="play" class="play">
+            <!-- <form on:submit|preventDefault={play} id="play" class="play">
                 <div>
                     <label for="row">Row</label>
                     <input
@@ -229,7 +230,7 @@
                     />
                 </div>
                 <input type="submit" value="Play" />
-            </form>
+            </form> -->
             {#if game}
                 <!-- NOTE: +1 for the row number indicator -->
                 <div
@@ -247,8 +248,14 @@
                     {/each}
                     {#each game.grid as row, rowIndex}
                         <div>{rowIndex}</div>
-                        {#each row as cell}
+                        {#each row as cell, colIndex}
                             <div
+                                on:click|preventDefault={(event) => {
+                                    console.log(event);
+                                    play(rowIndex, colIndex);
+                                }}
+                                on:contextmenu|preventDefault={() =>
+                                    play(rowIndex, colIndex, true)}
                                 class={`cell ${cellColor(
                                     game.status !== gameStatus.ONGOING,
                                     cell
@@ -304,7 +311,7 @@
 <style>
     main {
         padding: 1em;
-        max-width: 800px;
+        max-width: 1200px;
         margin: auto;
     }
 
