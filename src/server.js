@@ -53,6 +53,8 @@ io.use(wrap(sessionMiddleware));
 const db = new DB();
 await db.connect();
 
+// db.resetHighScores();
+
 io.on("connection", (socket) => {
     const session = socket.request.session;
     console.log("socket session ", socket.request.session);
@@ -76,9 +78,11 @@ io.on("connection", (socket) => {
 
             if (game.status !== gameStatus.ONGOING) {
                 if (game.status === gameStatus.WON) {
-                    await db.updateHighScore(session.userId, {
+                    // TODO: The schema should be specified somewhere
+                    await db.updateHighScore(session.username, {
                         score: game.score,
                         timestamp: Date.now(),
+                        gameMode: game.gridSize,
                     });
                 }
 

@@ -298,10 +298,20 @@
             </form>
         </div>
         <div class="highscores-container">
-            <h3>High scores</h3>
-            <ul id="high-scores">
+            <h3>High scores - 8x8</h3>
+            <ul id="high-scores-8">
                 {#each highScores as value}
-                    <li>{`${value.username}: ${value.highScore.score}`}</li>
+                    {#if value.gameMode === 8}
+                        <li>{`${value.username}: ${value.score}`}</li>
+                    {/if}
+                {/each}
+            </ul>
+            <h3>High scores - 16x16</h3>
+            <ul id="high-scores-16">
+                {#each highScores as value}
+                    {#if value.gameMode === 16}
+                        <li>{`${value.username}: ${value.score}`}</li>
+                    {/if}
                 {/each}
             </ul>
         </div>

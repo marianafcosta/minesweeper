@@ -25,29 +25,70 @@ export class DB {
         return this.db.collection("players").findOne({ username });
     }
 
-    async updateHighScore(userId, score) {
+    async updateHighScore(username, score) {
+        if (!username) {
+            return;
+        }
+
+        const filter = {
+            username: username,
+            gameMode: score.gameMode,
+        };
+
+        const options = { upsert: true };
+
+        const update = [
+            {
+                $set: {
+                    score: {
+                        $cond: {
+                            if: { $gt: ["$score", score.score] },
+                            then: score.score,
+                            else: "$score",
+                        },
+                    },
+                    timestamp: {
+                        $cond: {
+                            if: { $gt: ["$score", score.score] },
+                            then: score.timestamp,
+                            else: "$timestamp",
+                        },
+                    },
+                },
+            },
+        ];
+
         // TODO: Just one query
         await this.db
-            .collection("players")
+            .collection("highScores")
             .updateOne(
-                { _id: ObjectId(userId) },
-                { $min: { highScore: score } }
+                { ...filter, score: { $exists: true } },
+                update,
+                options
             );
 
-        await this.db
-            .collection("players")
-            .updateOne(
-                { _id: ObjectId(userId), highScore: { $exists: false } },
-                { $set: { highScore: score } }
-            );
+        await this.db.collection("highScores").updateOne(
+            { ...filter, score: { $exists: false } },
+            {
+                $set: {
+                    username,
+                    score: score.score,
+                    timestamp: score.timestamp,
+                },
+            }
+        );
+    }
+
+    async resetHighScores() {
+        await this.db.collection("highScores").deleteMany({});
     }
 
     async fetchHighScores() {
         return this.db
-            .collection("players")
+            .collection("highScores")
             .find()
-            .project({ password: 0, _id: 0 })
-            .sort({ "highScore.score": 1, "highScore.timestamp": -1 })
+            .project({ _id: 0 })
+            .sort({ score: 1, timestamp: -1 })
             .limit(10)
             .toArray();
     }
