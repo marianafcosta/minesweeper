@@ -191,84 +191,52 @@
             </form>
         </div>
         <div class="game-container">
-            {#if game && game.status !== gameStatus.ONGOING}
-                <h3 id="status">{`You ${game.status}!`}</h3>
-                <h4 id="score">{`Score: ${game.score}`}</h4>
-            {/if}
-            <!-- <form on:submit|preventDefault={play} id="play" class="play">
-                <div>
-                    <label for="row">Row</label>
-                    <input
-                        type="number"
-                        id="row"
-                        name="row"
-                        min="0"
-                        bind:value={row}
-                        max={maxGridSize}
-                        required
-                    />
-                </div>
-                <div>
-                    <label for="col">Column</label>
-                    <input
-                        type="number"
-                        id="col"
-                        name="col"
-                        min="0"
-                        bind:value={col}
-                        max={maxGridSize}
-                        required
-                    />
-                </div>
-                <div>
-                    <label for="flag">Flag?</label>
-                    <input
-                        type="checkbox"
-                        id="flag"
-                        name="flag"
-                        bind:checked={flag}
-                    />
-                </div>
-                <input type="submit" value="Play" />
-            </form> -->
             {#if game}
-                <!-- NOTE: +1 for the row number indicator -->
-                <div
-                    style={`grid-template-columns: repeat(${
-                        game.gridSize + 1
-                    }, 1fr);`}
-                    class="new-grid"
-                >
-                    {#each Array(game.gridSize + 1) as _, colIndex}
-                        {#if colIndex === 0}
-                            <div />
-                        {:else}
-                            <div>{colIndex - 1}</div>
-                        {/if}
-                    {/each}
-                    {#each game.grid as row, rowIndex}
-                        <div>{rowIndex}</div>
-                        {#each row as cell, colIndex}
-                            <div
-                                on:click|preventDefault={(event) => {
-                                    console.log(event);
-                                    play(rowIndex, colIndex);
-                                }}
-                                on:contextmenu|preventDefault={() =>
-                                    play(rowIndex, colIndex, true)}
-                                class={`cell ${cellColor(
-                                    game.status !== gameStatus.ONGOING,
-                                    cell
-                                )}`}
-                            >
-                                {cellContent(
-                                    game.status !== gameStatus.ONGOING,
-                                    cell
-                                )}
-                            </div>
+                <div>
+                    {#if game.status !== gameStatus.ONGOING}
+                        <h3 id="status">{`You ${game.status}!`}</h3>
+                        <h4 id="score">{`Score: ${game.score}`}</h4>
+                    {/if}
+                    <!-- NOTE: +1 for the row number indicator -->
+                    <div
+                        style={`grid-template-columns: repeat(${
+                            game.gridSize + 1
+                        }, 1fr);`}
+                        class="new-grid"
+                    >
+                        {#each Array(game.gridSize + 1) as _, colIndex}
+                            {#if colIndex === 0}
+                                <div />
+                            {:else}
+                                <div>{colIndex - 1}</div>
+                            {/if}
                         {/each}
-                    {/each}
+                        {#each game.grid as row, rowIndex}
+                            <div>{rowIndex}</div>
+                            {#each row as cell, colIndex}
+                                <div
+                                    on:click|preventDefault={(event) => {
+                                        console.log(event);
+                                        play(rowIndex, colIndex);
+                                    }}
+                                    on:contextmenu|preventDefault={() =>
+                                        play(rowIndex, colIndex, true)}
+                                    class={`cell ${cellColor(
+                                        game.status !== gameStatus.ONGOING,
+                                        cell
+                                    )}`}
+                                >
+                                    {cellContent(
+                                        game.status !== gameStatus.ONGOING,
+                                        cell
+                                    )}
+                                </div>
+                            {/each}
+                        {/each}
+                    </div>
                 </div>
+            {:else}
+                <h3>No game started</h3>
             {/if}
         </div>
         <div class="setup-container">
@@ -298,22 +266,26 @@
             </form>
         </div>
         <div class="highscores-container">
-            <h3>High scores - 8x8</h3>
-            <ul id="high-scores-8">
-                {#each highScores as value}
-                    {#if value.gameMode === 8}
-                        <li>{`${value.username}: ${value.score}`}</li>
-                    {/if}
-                {/each}
-            </ul>
-            <h3>High scores - 16x16</h3>
-            <ul id="high-scores-16">
-                {#each highScores as value}
-                    {#if value.gameMode === 16}
-                        <li>{`${value.username}: ${value.score}`}</li>
-                    {/if}
-                {/each}
-            </ul>
+            <div>
+                <h3>High scores - 8x8</h3>
+                <ul id="high-scores-8">
+                    {#each highScores as value}
+                        {#if value.gameMode === 8}
+                            <li>{`${value.username}: ${value.score}`}</li>
+                        {/if}
+                    {/each}
+                </ul>
+            </div>
+            <div>
+                <h3>High scores - 16x16</h3>
+                <ul id="high-scores-16">
+                    {#each highScores as value}
+                        {#if value.gameMode === 16}
+                            <li>{`${value.username}: ${value.score}`}</li>
+                        {/if}
+                    {/each}
+                </ul>
+            </div>
         </div>
     </div>
 </main>
@@ -328,6 +300,7 @@
     .content {
         display: grid;
         gap: 16px;
+        grid-template-columns: 1fr auto;
         grid-template-areas:
             "game login"
             "game setup"
@@ -335,25 +308,39 @@
     }
 
     .content > * {
-        background-color: beige;
         padding: 12px;
         border-radius: 8px;
     }
 
+    .content > *:not(.game-container) {
+        background-color: rgb(240, 240, 240);
+    }
+
     .login-container {
         grid-area: login;
+        width: 300px;
     }
 
     .game-container {
         grid-area: game;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .highscores-container {
         grid-area: highscores;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .highscores-container > * {
+        flex: 1;
     }
 
     .setup-container {
         grid-area: setup;
+        width: 300px;
     }
     .cell {
         aspect-ratio: 1;
