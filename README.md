@@ -5,7 +5,7 @@ My goal with this project is to work on my full-stack skills, starting with the 
 -   [x] CLI (a minesweeper clone)
 -   [x] Server (send commands for the server to process and receive game states with the changes applied)
 -   [x] DB (persistance; store high scores)
--   [ ] Frontend (a website to play the game)
+-   [x] Frontend (a website to play the game)
 -   [ ] Deployment
 
 My plan is to get a MVP ready for all of them, even if the solutions found are not ideal.
