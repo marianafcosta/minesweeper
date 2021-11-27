@@ -5,8 +5,9 @@
     "main": "./src/index.js",
     "type": "module",
     "scripts": {
-        "cli": "node src/index.js",
-        "server": "nodemon server.js"
+        "cli": "node cli/index.js",
+        "dev": "nodemon index.js",
+        "prod": "node index.js"
     },
     "repository": {
         "type": "git",
