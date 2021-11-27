@@ -1,3 +1,5 @@
+// NOTE: https://daveceddia.com/deploy-react-express-app-heroku/
+
 import express from "express";
 import session from "express-session";
 import cors from "cors";
@@ -24,6 +26,7 @@ app.use(
         credentials: true,
     })
 );
+app.use(express.static("client/public"));
 
 const sessionMiddleware = session({
     secret: "minesweeper",
@@ -31,8 +34,8 @@ const sessionMiddleware = session({
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 10, // NOTE: 10 days
         // httpOnly: true,
-        // sameSite: "lax", // NOTE: CSRF
-        // secure: false, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
+        sameSite: "lax", // NOTE: CSRF
+        // secure: true, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
     },
     saveUninitialized: false,
     resave: false,
@@ -52,8 +55,6 @@ io.use(wrap(sessionMiddleware));
 
 const db = new DB();
 await db.connect();
-
-// db.resetHighScores();
 
 io.on("connection", (socket) => {
     const session = socket.request.session;
@@ -109,7 +110,7 @@ io.on("connection", (socket) => {
     });
 });
 
-app.get("/me", async (req, res) => {
+app.get("/api/me", async (req, res) => {
     const username = req.session.username;
     console.log("username", username);
 
@@ -121,7 +122,7 @@ app.get("/me", async (req, res) => {
     }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
     const { username, password } = req.body;
 
     const user = await db.findPlayer(username);
@@ -141,7 +142,7 @@ app.post("/login", async (req, res) => {
     res.sendStatus(200);
 });
 
-app.post("/logout", async (req, res) => {
+app.post("/api/logout", async (req, res) => {
     req.session.destroy((err) => {
         if (err) {
             res.sendStatus(500);
@@ -152,6 +153,12 @@ app.post("/logout", async (req, res) => {
     });
 });
 
-server.listen(3000, () => {
-    console.log("listening on *:3000");
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get("*", (req, res) => {
+    res.sendFile("/client/public/index.html");
+});
+
+server.listen(5000, () => {
+    console.log("listening on *:5000");
 });

@@ -6,9 +6,7 @@
     "type": "module",
     "scripts": {
         "cli": "node src/index.js",
-        "server": "nodemon server.js",
-        "client": "serve client",
-        "dev": "concurrently \"npm run server\" \"npm run client\""
+        "server": "nodemon server.js"
     },
     "repository": {
         "type": "git",

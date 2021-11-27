@@ -1,7 +1,6 @@
 <script>
     import { io } from "socket.io-client";
     import { onMount } from "svelte";
-    import { prevent_default } from "svelte/internal";
 
     let socket;
     let game;
@@ -12,9 +11,6 @@
     let maxGridSize = selectedGridSize;
     let selectedNumBombs;
     let highScores = [];
-    // let row;
-    // let col;
-    // let flag;
     let username;
     let password;
 
@@ -97,7 +93,7 @@
         console.log("Request game initialization");
         const gridSize = parseInt(selectedGridSize);
         const numBombs = parseInt(selectedNumBombs);
-        socket = io("ws://localhost:3000", { withCredentials: true });
+        socket = io("ws://localhost:5000", { withCredentials: true });
         initSocket();
         socket.emit("init", {
             gridSize: gridSize || 16,
@@ -113,7 +109,7 @@
     }
 
     async function login() {
-        const response = await fetch("http://localhost:3000/login", {
+        const response = await fetch("http://localhost:5000/api/login", {
             method: "POST", // *GET, POST, PUT, DELETE, etc.
             mode: "cors", // no-cors, *cors, same-origin
             credentials: "include", // include, *same-origin, omit
@@ -131,7 +127,7 @@
     }
 
     async function logout() {
-        await fetch("http://localhost:3000/logout", {
+        await fetch("http://localhost:5000/api/logout", {
             method: "POST",
             mode: "cors", // no-cors, *cors, same-origin
             credentials: "include", // include, *same-origin, omit
@@ -139,7 +135,7 @@
     }
 
     async function fetchCurrentUser() {
-        const response = await fetch("http://localhost:3000/me", {
+        const response = await fetch("http://localhost:5000/api/me", {
             credentials: "include",
         });
 
