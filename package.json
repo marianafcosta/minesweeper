@@ -3,9 +3,7 @@
     "version": "1.0.0",
     "description": "A minesweeper clone",
     "scripts": {
-        "cli": "cd src && npm run cli",
-        "dev": "cd src && npm run dev",
-        "prod": "cd src && npm run prod"
+        "prod": "cd src/client && npm install && npm run build && cd .. && npm run prod"
     },
     "repository": {
         "type": "git",
