@@ -1,1 +1,1 @@
-web: cd src && npm run prod
+web: npm run prod

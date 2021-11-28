@@ -3,7 +3,10 @@
     "version": "1.0.0",
     "description": "A minesweeper clone",
     "scripts": {
-        "prod": "cd src/client && npm install && npm run build && cd .. && npm run prod"
+        "install:client": "cd src/client && npm install",
+        "install:server": "cd src && npm install",
+        "build:client": "cd src/client && rm -rf public && npm run build",
+        "prod": "npm run install:client && npm run install:server && npm run build:client && cd src && npm run prod"
     },
     "repository": {
         "type": "git",
