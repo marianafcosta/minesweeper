@@ -8,8 +8,7 @@
         "cli": "node cli/index.js",
         "dev": "nodemon index.js",
         "prod": "node index.js",
-        "build": "npm install && cd client && npm install",
-        "heroku-postbuild": "cd client && rm -rf public && npm run build"
+        "heroku-postbuild": "cd client && npm install && npm run build"
     },
     "repository": {
         "type": "git",
