@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 
 export class DB {
-    static url = "mongodb://localhost:27017";
+    static url = process.env.MONGODB_URI || "mongodb://localhost:27017";
     static dbName = "minesweeper";
 
     constructor() {
