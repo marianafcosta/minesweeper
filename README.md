@@ -10,6 +10,10 @@ My goal with this project is to work on my full-stack skills, starting with the 
 
 My plan is to get a MVP ready for all of them, even if the solutions found are not ideal.
 
+# Notes
+
+-   I can't get Heroku to build the app in the `heroku-postbuild` phase, so for now I have to build the application manually and commit the build files
+
 ## Instructions
 
 ```
