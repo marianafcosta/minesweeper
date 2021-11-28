@@ -1,12 +1,14 @@
 {
     "name": "minesweeper",
     "version": "1.0.0",
-    "description": "A minesweeper clone",
+    "description": "Minesweeper clone",
+    "main": "./src/index.js",
+    "type": "module",
     "scripts": {
-        "install:client": "cd src/client && npm install",
-        "install:server": "cd src && npm install",
-        "build:client": "cd src/client && rm -rf public && npm run build",
-        "prod": "npm run install:client && npm run install:server && npm run build:client && cd src && npm run prod"
+        "cli": "node cli/index.js",
+        "dev": "nodemon index.js",
+        "prod": "node index.js",
+        "heroku-postbuild": "cd client && npm install && rm -rf public && npm run build"
     },
     "repository": {
         "type": "git",
@@ -14,8 +16,16 @@
     },
     "author": "Mariana Costa",
     "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/marianafcosta/minesweeper/issues"
+    "dependencies": {
+        "argon2": "^0.28.2",
+        "body-parser": "^1.19.0",
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "express-session": "^1.17.2",
+        "mongodb": "^4.1.3",
+        "socket.io": "^4.2.0"
     },
-    "homepage": "https://github.com/marianafcosta/minesweeper#readme"
+    "devDependencies": {
+        "nodemon": "^2.0.13"
+    }
 }
