@@ -93,7 +93,9 @@
         console.log("Request game initialization");
         const gridSize = parseInt(selectedGridSize);
         const numBombs = parseInt(selectedNumBombs);
-        socket = io("ws://localhost:5000", { withCredentials: true });
+        socket = io(location.origin.replace(/^http/, "ws"), {
+            withCredentials: true,
+        });
         initSocket();
         socket.emit("init", {
             gridSize: gridSize || 16,
@@ -109,7 +111,7 @@
     }
 
     async function login() {
-        const response = await fetch("http://localhost:5000/api/login", {
+        const response = await fetch("/api/login", {
             method: "POST", // *GET, POST, PUT, DELETE, etc.
             mode: "cors", // no-cors, *cors, same-origin
             credentials: "include", // include, *same-origin, omit
@@ -127,7 +129,7 @@
     }
 
     async function logout() {
-        await fetch("http://localhost:5000/api/logout", {
+        await fetch("/api/logout", {
             method: "POST",
             mode: "cors", // no-cors, *cors, same-origin
             credentials: "include", // include, *same-origin, omit
@@ -135,7 +137,7 @@
     }
 
     async function fetchCurrentUser() {
-        const response = await fetch("http://localhost:5000/api/me", {
+        const response = await fetch("/api/me", {
             credentials: "include",
         });
 

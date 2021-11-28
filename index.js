@@ -20,12 +20,12 @@ import { DB } from "./db.js";
 const app = express();
 
 app.use(bodyParser.json());
-app.use(
-    cors({
-        origin: "http://localhost:5000",
-        credentials: true,
-    })
-);
+// app.use(
+//     cors({
+//         origin: "http://localhost:5000",
+//         credentials: true,
+//     })
+// );
 app.use(express.static("client/public"));
 
 const sessionMiddleware = session({
@@ -35,7 +35,7 @@ const sessionMiddleware = session({
         maxAge: 1000 * 60 * 60 * 24 * 10, // NOTE: 10 days
         // httpOnly: true,
         sameSite: "lax", // NOTE: CSRF
-        // secure: true, // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
+        secure: process.env.NODE_ENV === "prod", // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
     },
     saveUninitialized: false,
     resave: false,
@@ -45,7 +45,7 @@ app.use(sessionMiddleware);
 
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: { origin: "http://localhost:5000", credentials: true },
+    // cors: { origin: "http://localhost:5000", credentials: true },
 });
 
 const wrap = (middleware) => (socket, next) =>
@@ -159,6 +159,6 @@ app.get("*", (req, res) => {
     res.sendFile("/client/public/index.html");
 });
 
-server.listen(5000, () => {
-    console.log("listening on *:5000");
+server.listen(process.env.PORT || 5000, () => {
+    console.log(`Listening on *:${process.env.PORT}`);
 });
