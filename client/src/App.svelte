@@ -113,7 +113,7 @@
     async function login() {
         const response = await fetch("/api/login", {
             method: "POST", // *GET, POST, PUT, DELETE, etc.
-            mode: "cors", // no-cors, *cors, same-origin
+            mode: "same-origin", // no-cors, *cors, same-origin
             credentials: "include", // include, *same-origin, omit
             headers: {
                 "Content-Type": "application/json",
@@ -131,7 +131,7 @@
     async function logout() {
         await fetch("/api/logout", {
             method: "POST",
-            mode: "cors", // no-cors, *cors, same-origin
+            mode: "same-origin", // no-cors, *cors, same-origin
             credentials: "include", // include, *same-origin, omit
         });
     }
@@ -370,15 +370,6 @@
     #login {
         display: flex;
         flex-direction: column;
-    }
-
-    #play {
-        display: flex;
-        flex-direction: row;
-    }
-
-    #play > *:not(:first-child) {
-        margin-left: 16px;
     }
 
     .login-actions {

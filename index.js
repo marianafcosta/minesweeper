@@ -33,7 +33,7 @@ const sessionMiddleware = session({
     name: "minesweeper",
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 10, // NOTE: 10 days
-        // httpOnly: true,
+        httpOnly: process.env.NODE_ENV === "prod",
         sameSite: "lax", // NOTE: CSRF
         secure: process.env.NODE_ENV === "prod", // NOTE: Cookie only works in HTTPS if set to true (i.e. in production)
     },
