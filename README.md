@@ -10,6 +10,10 @@ My goal with this project is to work on my full-stack skills, starting with the 
 
 All milestones have an associated release with a brief description. I've gotten an MVP ready for each of the milestones, and hope to continue to work on this bit by bit, as I come up with new things to try.
 
+## Notes
+
+I did deploy the application, but I still have to figure out some questions in regards to securing the communication through web scockets so for now I'll leave that on the backburner.
+
 ## Instructions
 
 ```
