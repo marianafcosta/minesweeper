@@ -1,31 +1,25 @@
 # Minesweeper
 
-My goal with this project is to work on my full-stack skills, starting with the creation of a simple CLI version of Minesweeper and gradually working my way towards a game that can be played online. For now, I've set up 5 milestones for this project, each of them with its own release.
+My goal with this project is to work on my full-stack skills, starting with the creation of a simple CLI version of Minesweeper and gradually working my way towards a game that can be played online.For now, I've set up 5 milestones for this project, each of them with its own release.
 
 -   [x] CLI (a minesweeper clone)
 -   [x] Server (send commands for the server to process and receive game states with the changes applied)
 -   [x] DB (persistance; store high scores)
 -   [x] Frontend (a website to play the game)
--   [ ] Deployment
+-   [x] Deployment
 
-My plan is to get a MVP ready for all of them, even if the solutions found are not ideal.
-
-# Notes
-
--   I can't get Heroku to build the app in the `heroku-postbuild` phase, so for now I have to build the application manually and commit the build files
+All milestones have an associated release with a brief description. I've gotten an MVP ready for each of the milestones, and hope to continue to work on this bit by bit, as I come up with new things to try.
 
 ## Instructions
 
 ```
-cd src
-
 # CLI
 npm run cli
 
-# Server
-npm run server
+# Client (build)
+cd client && npm run build
 
-# Concurrent
+# Dev
 npm run dev
 
 ```
